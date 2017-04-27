@@ -1,0 +1,11 @@
+command         ::= insert_command | delete_command | update_command
+
+insert_command  ::= "\s*insert\s+" + set_values_stmt
+
+delete_command  ::= "\s*delete\s+((" + primary_key + "(, " + primary_key + ")*)|\*)"
+
+update_command  ::= "\s*update\s+where\s+" + primary_key_value + "\s+set\s+" + set_values_stmt
+
+set_value_stmt  ::= col_name + "\s*=\s*" + col_value
+
+set_values_stmt ::= set_value_stmt + "(,\s*" + set_value_stmt + "\s*)*"
