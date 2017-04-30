@@ -1,6 +1,5 @@
 package com.company.interaction;
 
-import java.lang.String;
 import java.util.regex.Pattern;
 
 public class InteractionManager {
