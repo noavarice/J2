@@ -17,21 +17,18 @@ public class TerminalCommand {
 
     private String columnValues = "";
 
-    private boolean isValid;
-
-    public TerminalCommand() { isValid = false; }
+    public TerminalCommand() {}
 
     public TerminalCommand(String tableName, CommandType type, int id, String columnValuePairs) {
         this.tableName = tableName;
         comType = type;
         this.id = id;
         columnValues = columnValuePairs;
-        isValid = true;
     }
 
-    public CommandType getCommandType() {
-        return comType;
-    }
+    public String getTableName() { return tableName; }
+
+    public CommandType getCommandType() { return comType; }
 
     public int getId() {
         return id;
@@ -40,6 +37,4 @@ public class TerminalCommand {
     public String getColumnValues() {
         return columnValues;
     }
-
-    public boolean isValid() { return isValid; }
 }
