@@ -1,6 +1,9 @@
 package com.company.interaction;
 
+import com.company.controllers.AbstractController;
+
 import java.util.Hashtable;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,9 +59,9 @@ public class InteractionManager {
 
     private static final Pattern[] COMMAND_PATTERNS = {
         Pattern.compile("\\s*(" + CATHEGORY_COMMAND_PREFIX + ")\\s+(" + INSERT_COMMAND + ")()\\s+(" + SET_NAME +
-                        "\\s+" + SET_DESCRIPTION + ")\\s*"),
+                        "\\s*,\\s*" + SET_DESCRIPTION + ")\\s*"),
         Pattern.compile("\\s*(" + GOODS_COMMAND_PREFIX + ")\\s+(" + INSERT_COMMAND + ")()\\s+(" + SET_CATHEGORY_ID +
-                        "\\s+" + SET_PRICE + "\\s+" + SET_BRAND + ")\\s*"),
+                        "\\s*,\\s*" + SET_PRICE + "'\\s*,\\s*" + SET_BRAND + ")\\s*"),
         Pattern.compile("\\s*(" + CATHEGORY_COMMAND_PREFIX + ")\\s+(" + DELETE_COMMAND + ")\\s+(" + PRIMARY_KEYS +
                         ")()\\s*"),
         Pattern.compile("\\s*(" + GOODS_COMMAND_PREFIX + ")\\s+(" + DELETE_COMMAND + ")\\s+(" + PRIMARY_KEYS +
@@ -95,5 +98,32 @@ public class InteractionManager {
             }
         }
         return new TerminalCommand();
+    }
+
+    private static final String PAIRS_PATTERN = "\\s*(\\w+)" + ASSIGNMENT_PATTERN + "(([^\\s]+)|(" +
+                                                NOT_NULL_STRING_PATTERN + ")|(" + NULL_STRING_PATTERN + "))\\s*";
+
+    public static boolean execute(AbstractController controller, String userInput)
+    {
+        TerminalCommand command = getCommandFromInput(userInput);
+        switch (command.getCommandType()) {
+            case NOT_VALID: return false;
+
+            case SHOW: controller.show();
+            break;
+
+            case INSERT: {
+                Properties props = new Properties();
+                String[] pairs = command.getColumnValues().split(",");
+                Pattern p = Pattern.compile(PAIRS_PATTERN);
+                for (int i = 0; i < pairs.length; ++i) {
+                    String[] pair = pairs[i].split("=");
+                    props.put(pair[0].trim(), pair[1].trim());
+                }
+                controller.insert(props);
+            }
+            break;
+        }
+        return true;
     }
 }
