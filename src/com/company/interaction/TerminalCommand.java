@@ -9,18 +9,24 @@ enum CommandType {
 }
 
 public class TerminalCommand {
+    private String tableName;
+
     private CommandType comType = CommandType.NOT_VALID;
 
     private int id = -1;
 
     private String columnValues = "";
 
-    public TerminalCommand() {}
+    private boolean isValid;
 
-    public TerminalCommand(CommandType type, int id, String columnValuePairs) {
+    public TerminalCommand() { isValid = false; }
+
+    public TerminalCommand(String tableName, CommandType type, int id, String columnValuePairs) {
+        this.tableName = tableName;
         comType = type;
         this.id = id;
         columnValues = columnValuePairs;
+        isValid = true;
     }
 
     public CommandType getCommandType() {
@@ -34,4 +40,6 @@ public class TerminalCommand {
     public String getColumnValues() {
         return columnValues;
     }
+
+    public boolean isValid() { return isValid; }
 }
