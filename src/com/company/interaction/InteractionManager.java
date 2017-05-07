@@ -6,9 +6,10 @@ import java.util.regex.Pattern;
 
 public class InteractionManager {
     private enum CommandPart {
+        TABLE_NAME,
         COMMAND_NAME,
         PRIMARY_KEY,
-        SET_VALUES_STATEMENT
+        SET_VALUES_STATEMENTS,
     };
 
     private static final String MYSQL_COLUMN_NAME_IDENTIFIER = "[\\w$]+";
@@ -41,32 +42,33 @@ public class InteractionManager {
 
     private static final String PRIMARY_KEYS = PRIMARY_KEY + "\\s*(,\\s*" + PRIMARY_KEY + "\\*)";
 
-    private static final String CATHEGORY_COMMAND_PREFIX = "\\bcathegory\\b";
+    private static final String CATHEGORY_COMMAND_PREFIX = "cathegory";
 
-    private static final String GOODS_COMMAND_PREFIX = "\\bgoods\\b";
+    private static final String GOODS_COMMAND_PREFIX = "goods";
 
-    private static final String INSERT_COMMAND = "\\binsert\\b";
+    private static final String INSERT_COMMAND = "insert";
 
-    private static final String DELETE_COMMAND = "\\bdelete\\b";
+    private static final String DELETE_COMMAND = "delete";
 
-    private static final String UPDATE_COMMAND = "\\bupdate\\b";
+    private static final String UPDATE_COMMAND = "update";
 
-    private static final String SHOW_COMMAND = "\\bshow\\b";
+    private static final String SHOW_COMMAND = "show";
 
     private static final Pattern[] COMMAND_PATTERNS = {
-        Pattern.compile("\\s*" + CATHEGORY_COMMAND_PREFIX + "\\s+" + INSERT_COMMAND + "\\s+" + SET_NAME + "\\s+" +
-                        SET_DESCRIPTION + "\\s*"),
-        Pattern.compile("\\s*" + GOODS_COMMAND_PREFIX + "\\s+" + INSERT_COMMAND + "\\s+" + SET_CATHEGORY_ID + "\\s+" +
-                        SET_PRICE + "\\s+" + SET_BRAND + "\\s*"),
-        Pattern.compile("\\s*" + CATHEGORY_COMMAND_PREFIX + "\\s+" + DELETE_COMMAND + "\\s+" + PRIMARY_KEYS),
-        Pattern.compile("\\s*" + GOODS_COMMAND_PREFIX + "\\s+" + DELETE_COMMAND + "\\s+" + PRIMARY_KEYS),
-        Pattern.compile("\\s*" + CATHEGORY_COMMAND_PREFIX + "\\s+" + UPDATE_COMMAND + "\\s+" + PRIMARY_KEY + "\\s+(" +
-                        SET_NAME + "|" + SET_DESCRIPTION + ")\\s*"),
-        Pattern.compile("\\s*" + GOODS_COMMAND_PREFIX + "\\s+" + UPDATE_COMMAND + "\\s+" + PRIMARY_KEY + "\\s+(" +
+        Pattern.compile("\\s*(" + CATHEGORY_COMMAND_PREFIX + ")\\s+(" + INSERT_COMMAND + ")()\\s+(" + SET_NAME +
+                        "\\s+" + SET_DESCRIPTION + ")\\s*"),
+        Pattern.compile("\\s*(" + GOODS_COMMAND_PREFIX + ")\\s+(" + INSERT_COMMAND + ")()\\s+(" + SET_CATHEGORY_ID +
+                        "\\s+" + SET_PRICE + "\\s+" + SET_BRAND + ")\\s*"),
+        Pattern.compile("\\s*(" + CATHEGORY_COMMAND_PREFIX + ")\\s+(" + DELETE_COMMAND + ")\\s+(" + PRIMARY_KEYS +
+                        ")\\s*"),
+        Pattern.compile("\\s*(" + GOODS_COMMAND_PREFIX + ")\\s+(" + DELETE_COMMAND + ")\\s+(" + PRIMARY_KEYS + ")\\s*"),
+        Pattern.compile("\\s*(" + CATHEGORY_COMMAND_PREFIX + ")\\s+(" + UPDATE_COMMAND + ")\\s+(" + PRIMARY_KEY +
+                        ")\\s+(" + SET_NAME + "|" + SET_DESCRIPTION + ")\\s*"),
+        Pattern.compile("\\s*(" + GOODS_COMMAND_PREFIX + ")\\s+(" + UPDATE_COMMAND + ")\\s+(" + PRIMARY_KEY + ")\\s+(" +
                         SET_CATHEGORY_ID + "|" + SET_PRICE + "|" + SET_BRAND + ")\\s*"),
-        Pattern.compile("\\s*(" + CATHEGORY_COMMAND_PREFIX + "|" + GOODS_COMMAND_PREFIX + ")\\s+" + SHOW_COMMAND +
-                        "\\s*"),
-        Pattern.compile("\\s*(" + GOODS_COMMAND_PREFIX + "|" + GOODS_COMMAND_PREFIX + ")\\s+" + SHOW_COMMAND + "\\s*"),
+        Pattern.compile("\\s*(" + CATHEGORY_COMMAND_PREFIX + "|" + GOODS_COMMAND_PREFIX + ")\\s+(" + SHOW_COMMAND +
+                        ")\\s*"),
+        Pattern.compile("\\s*(" + GOODS_COMMAND_PREFIX + "|" + GOODS_COMMAND_PREFIX + ")\\s+(" + SHOW_COMMAND +")\\s*"),
     };
 
     private static final Hashtable<String, CommandType> nameToCommandType = new Hashtable<String, CommandType>() {
