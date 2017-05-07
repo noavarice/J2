@@ -39,4 +39,7 @@ public class DatabaseController extends AbstractController {
 
     public void update(int id, Properties props) {
     }
+
+    public void show() {
+    }
 }

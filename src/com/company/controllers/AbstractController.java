@@ -8,4 +8,6 @@ public abstract class AbstractController {
     public abstract void delete(int id);
 
     public abstract void update(int id, Properties props);
+
+    public abstract void show();
 }
