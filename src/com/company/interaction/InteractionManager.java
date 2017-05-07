@@ -51,6 +51,8 @@ public class InteractionManager {
 
     private static final String UPDATE_COMMAND = "\\bupdate\\b";
 
+    private static final String SHOW_COMMAND = "\\bshow\\b";
+
     private static final Pattern[] COMMAND_PATTERNS = {
         Pattern.compile("\\s*" + CATHEGORY_COMMAND_PREFIX + "\\s+" + INSERT_COMMAND + "\\s+" + SET_NAME + "\\s+" +
                         SET_DESCRIPTION + "\\s*"),
@@ -61,7 +63,10 @@ public class InteractionManager {
         Pattern.compile("\\s*" + CATHEGORY_COMMAND_PREFIX + "\\s+" + UPDATE_COMMAND + "\\s+" + PRIMARY_KEY + "\\s+(" +
                         SET_NAME + "|" + SET_DESCRIPTION + ")\\s*"),
         Pattern.compile("\\s*" + GOODS_COMMAND_PREFIX + "\\s+" + UPDATE_COMMAND + "\\s+" + PRIMARY_KEY + "\\s+(" +
-                        SET_CATHEGORY_ID + "|" + SET_PRICE + "|" + SET_BRAND + ")\\s*")
+                        SET_CATHEGORY_ID + "|" + SET_PRICE + "|" + SET_BRAND + ")\\s*"),
+        Pattern.compile("\\s*(" + CATHEGORY_COMMAND_PREFIX + "|" + GOODS_COMMAND_PREFIX + ")\\s+" + SHOW_COMMAND +
+                        "\\s*"),
+        Pattern.compile("\\s*(" + GOODS_COMMAND_PREFIX + "|" + GOODS_COMMAND_PREFIX + ")\\s+" + SHOW_COMMAND + "\\s*"),
     };
 
     private static final Hashtable<String, CommandType> nameToCommandType = new Hashtable<String, CommandType>() {
@@ -69,6 +74,7 @@ public class InteractionManager {
             put("insert", CommandType.INSERT);
             put("delete", CommandType.DELETE);
             put("update", CommandType.UPDATE);
+            put("show", CommandType.SHOW);
         }
     };
 

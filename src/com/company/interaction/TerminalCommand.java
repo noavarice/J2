@@ -4,7 +4,8 @@ enum CommandType {
     NOT_VALID,
     INSERT,
     DELETE,
-    UPDATE
+    UPDATE,
+    SHOW,
 }
 
 public class TerminalCommand {
