@@ -40,7 +40,7 @@ public class InteractionManager {
 
     private static final String PRIMARY_KEY = "(\\bid" + ASSIGNMENT_PATTERN + ID_PATTERN + ")";
 
-    private static final String PRIMARY_KEYS = PRIMARY_KEY + "\\s*(,\\s*" + PRIMARY_KEY + "\\*)";
+    private static final String PRIMARY_KEYS = PRIMARY_KEY + "\\s*(,\\s*" + PRIMARY_KEY + "\\s*)";
 
     private static final String CATHEGORY_COMMAND_PREFIX = "cathegory";
 
@@ -60,14 +60,15 @@ public class InteractionManager {
         Pattern.compile("\\s*(" + GOODS_COMMAND_PREFIX + ")\\s+(" + INSERT_COMMAND + ")()\\s+(" + SET_CATHEGORY_ID +
                         "\\s+" + SET_PRICE + "\\s+" + SET_BRAND + ")\\s*"),
         Pattern.compile("\\s*(" + CATHEGORY_COMMAND_PREFIX + ")\\s+(" + DELETE_COMMAND + ")\\s+(" + PRIMARY_KEYS +
-                        ")\\s*"),
-        Pattern.compile("\\s*(" + GOODS_COMMAND_PREFIX + ")\\s+(" + DELETE_COMMAND + ")\\s+(" + PRIMARY_KEYS + ")\\s*"),
+                        ")()\\s*"),
+        Pattern.compile("\\s*(" + GOODS_COMMAND_PREFIX + ")\\s+(" + DELETE_COMMAND + ")\\s+(" + PRIMARY_KEYS +
+                        ")()\\s*"),
         Pattern.compile("\\s*(" + CATHEGORY_COMMAND_PREFIX + ")\\s+(" + UPDATE_COMMAND + ")\\s+(" + PRIMARY_KEY +
                         ")\\s+(" + SET_NAME + "|" + SET_DESCRIPTION + ")\\s*"),
         Pattern.compile("\\s*(" + GOODS_COMMAND_PREFIX + ")\\s+(" + UPDATE_COMMAND + ")\\s+(" + PRIMARY_KEY + ")\\s+(" +
                         SET_CATHEGORY_ID + "|" + SET_PRICE + "|" + SET_BRAND + ")\\s*"),
         Pattern.compile("\\s*(" + CATHEGORY_COMMAND_PREFIX + "|" + GOODS_COMMAND_PREFIX + ")\\s+(" + SHOW_COMMAND +
-                        ")\\s*"),
+                        ")()()\\s*"),
         Pattern.compile("\\s*(" + GOODS_COMMAND_PREFIX + "|" + GOODS_COMMAND_PREFIX + ")\\s+(" + SHOW_COMMAND +")\\s*"),
     };
 
@@ -80,15 +81,17 @@ public class InteractionManager {
         }
     };
 
-    public static TerminalCommand getCommandFromInput(String userInput) {
+    private static TerminalCommand getCommandFromInput(String userInput) {
         // прогоняем строку по регуляркам, если нашли совпадение - создаем из строки команду
         for (int i = 0; i < COMMAND_PATTERNS.length; ++i) {
             Matcher matcher = COMMAND_PATTERNS[i].matcher(userInput);
             if (matcher.matches()) {
+                String tableName = matcher.group(CommandPart.TABLE_NAME.ordinal());
                 CommandType type = nameToCommandType.get(matcher.group(CommandPart.COMMAND_NAME.ordinal()));
-                int id = Integer.parseInt(matcher.group(CommandPart.PRIMARY_KEY.ordinal()));
-                String columnValuesPairs = matcher.group(CommandPart.SET_VALUES_STATEMENT.ordinal());
-                return new TerminalCommand(type, id, columnValuesPairs);
+                String idString = matcher.group(CommandPart.PRIMARY_KEY.ordinal());
+                int id = idString.isEmpty() ? -1 : Integer.parseInt(idString);
+                String columnValuesPairs = matcher.group(CommandPart.SET_VALUES_STATEMENTS.ordinal());
+                return new TerminalCommand(tableName, type, id, columnValuesPairs);
             }
         }
         return new TerminalCommand();
