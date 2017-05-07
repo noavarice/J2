@@ -58,10 +58,10 @@ public class InteractionManager {
                         SET_PRICE + "\\s+" + SET_BRAND + "\\s*"),
         Pattern.compile("\\s*" + CATHEGORY_COMMAND_PREFIX + "\\s+" + DELETE_COMMAND + "\\s+" + PRIMARY_KEYS),
         Pattern.compile("\\s*" + GOODS_COMMAND_PREFIX + "\\s+" + DELETE_COMMAND + "\\s+" + PRIMARY_KEYS),
-        Pattern.compile("\\s*" + CATHEGORY_COMMAND_PREFIX + "\\s+" + UPDATE_COMMAND + "\\s+" + "(" + SET_NAME +
-                        "|" + SET_DESCRIPTION + ")\\s*"),
-        Pattern.compile("\\s*" + GOODS_COMMAND_PREFIX + "\\s+" + UPDATE_COMMAND + "\\s+" + "(" + SET_CATHEGORY_ID +
-                        "|" + SET_PRICE + "|" + SET_BRAND + ")\\s*")
+        Pattern.compile("\\s*" + CATHEGORY_COMMAND_PREFIX + "\\s+" + UPDATE_COMMAND + "\\s+" + PRIMARY_KEY + "\\s+(" +
+                        SET_NAME + "|" + SET_DESCRIPTION + ")\\s*"),
+        Pattern.compile("\\s*" + GOODS_COMMAND_PREFIX + "\\s+" + UPDATE_COMMAND + "\\s+" + PRIMARY_KEY + "\\s+(" +
+                        SET_CATHEGORY_ID + "|" + SET_PRICE + "|" + SET_BRAND + ")\\s*")
     };
 
     private static final Hashtable<String, CommandType> nameToCommandType = new Hashtable<String, CommandType>() {
