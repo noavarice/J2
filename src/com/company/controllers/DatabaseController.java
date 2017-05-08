@@ -11,24 +11,27 @@ import java.util.Properties;
 public class DatabaseController extends AbstractController {
     private Connection connection;
 
-    private String getConnectionProperties(String filePath) throws IOException {
+    private Properties getConnectionProperties(String filePath) throws IOException {
         Properties props = new Properties();
         props.load(new FileInputStream(new File(filePath)));
-        return new StringBuilder().append(props.getProperty("driver"))
-                                  .append("?user=")
-                                  .append(props.getProperty("username"))
-                                  .append("&password=")
-                                  .append(props.getProperty("password"))
-                                  .toString();
+        return props;
     }
 
     public DatabaseController(String filePath) throws ClassNotFoundException,
                                                       InstantiationException,
                                                       IllegalAccessException,
                                                       IOException,
-                                                      SQLException {
-        Class.forName("com.mysql.jdbc.Driver").newInstance();
-        connection = DriverManager.getConnection(getConnectionProperties(filePath));
+                                                      SQLException
+    {
+        Properties props = getConnectionProperties(filePath);
+        Class.forName(props.getProperty("driver")).newInstance();
+        StringBuilder builder = new StringBuilder();
+        builder.append(props.getProperty("url"))
+               .append("user=")
+               .append(props.getProperty("username"))
+               .append("&password=")
+               .append(props.getProperty("password"));
+        connection = DriverManager.getConnection(builder.toString());
     }
 
     public void insert(Properties props) {
