@@ -1,13 +1,17 @@
 package com.company.controllers;
 
+import com.company.interaction.TerminalCommand;
+
 import java.util.Properties;
 
 public abstract class AbstractController {
-    public abstract void insert(Properties props);
+    public abstract boolean tryExecute(TerminalCommand command);
 
-    public abstract void delete(int id);
+    protected abstract void insert(Properties props);
 
-    public abstract void update(int id, Properties props);
+    protected abstract void delete(int id);
 
-    public abstract void show();
+    protected abstract void update(int id, Properties props);
+
+    protected abstract void show();
 }

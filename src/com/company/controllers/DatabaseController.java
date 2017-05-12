@@ -1,14 +1,22 @@
 package com.company.controllers;
 
+import com.company.interaction.TerminalCommand;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Properties;
 
 public class DatabaseController extends AbstractController {
+    private static final String INSERT_STMT = "INSERT INTO %1 (%2) VALUES (%3)";
+
+    private static final String DELETE_STMT = "DELETE FROM %1 WHERE id = %2";
+
+    private static final String UPDATE_STMT = "UPDATE %1 SET %2 = %3";
+
+    private String tableName = "";
+
     private Connection connection;
 
     private Properties getConnectionProperties(String filePath) throws IOException {
@@ -34,15 +42,48 @@ public class DatabaseController extends AbstractController {
         connection = DriverManager.getConnection(builder.toString());
     }
 
-    public void insert(Properties props) {
+    public final boolean tryExecute(TerminalCommand command)
+    {
+        tableName = command.getTableName();
+        switch (command.getCommandType()) {
+            case NOT_VALID: return false;
+
+            case SHOW: show();
+                break;
+
+            case INSERT: {
+                Properties props = new Properties();
+                String[] pairs = command.getColumnValues().split(",");
+                for (int i = 0; i < pairs.length; ++i) {
+                    String[] pair = pairs[i].split("=");
+                    props.put(pair[0].trim(), pair[1].trim());
+                }
+                insert(props);
+            }
+            break;
+        }
+        return true;
     }
 
-    public void delete(int id) {
+    protected final void insert(Properties props)
+    {
+        StringBuilder columnNamesBuilder = new StringBuilder();
+        StringBuilder columnValuesBuilder = new StringBuilder();
+        for (String columnName : props.stringPropertyNames()) {
+            columnNamesBuilder.append(columnName);
+            columnValuesBuilder.append(props.get(columnName));
+        }
     }
 
-    public void update(int id, Properties props) {
+    protected final void delete(int id)
+    {
     }
 
-    public void show() {
+    protected final void update(int id, Properties props)
+    {
+    }
+
+    protected final void show()
+    {
     }
 }

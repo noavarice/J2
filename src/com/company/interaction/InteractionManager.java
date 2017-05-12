@@ -105,25 +105,6 @@ public class InteractionManager {
 
     public static boolean execute(AbstractController controller, String userInput)
     {
-        TerminalCommand command = getCommandFromInput(userInput);
-        switch (command.getCommandType()) {
-            case NOT_VALID: return false;
-
-            case SHOW: controller.show();
-            break;
-
-            case INSERT: {
-                Properties props = new Properties();
-                String[] pairs = command.getColumnValues().split(",");
-                Pattern p = Pattern.compile(PAIRS_PATTERN);
-                for (int i = 0; i < pairs.length; ++i) {
-                    String[] pair = pairs[i].split("=");
-                    props.put(pair[0].trim(), pair[1].trim());
-                }
-                controller.insert(props);
-            }
-            break;
-        }
-        return true;
+        return controller.tryExecute(getCommandFromInput(userInput));
     }
 }
