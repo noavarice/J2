@@ -8,47 +8,39 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class InteractionManager {
-    private enum CommandPart {
-        TABLE_NAME,
-        COMMAND_NAME,
-        PRIMARY_KEY,
-        SET_VALUES_STATEMENTS,
-    };
-
-    private static final String MYSQL_COLUMN_NAME_IDENTIFIER = "[\\w$]+";
-
     private static final String ASSIGNMENT_PATTERN = "\\s*=\\s*";
 
     private static final String NOT_NULL_STRING_PATTERN = "\"[^\"]+\"";
-
-    private static final String NULL_STRING_PATTERN = "\"[^\"]*\"";
-
-    private static final String SET_NAME = "(\\bname" + ASSIGNMENT_PATTERN + NOT_NULL_STRING_PATTERN + ")";
-
-    private static final String SET_DESCRIPTION = "(\\bdescription" + ASSIGNMENT_PATTERN + NULL_STRING_PATTERN + ")";
 
     private static final String ID_PATTERN = "(([01]?\\d{1,2})" +
                                              "|(2[0-4]\\d)" +
                                              "|(25[0-5]))";
 
-    private static final String SET_CATHEGORY_ID = "(\\bcathegory_id" + ASSIGNMENT_PATTERN + ID_PATTERN + ")";
+    private static final String PRICE_PATTERN = "(\\d{1,3}(\\.\\d{1,2})?)";
 
-    private static final String PRICE_PATTERN = "(\\d{1,5}(\\.\\d{1,2})?)";
+    private static final String SET_PRICE = "(price" + ASSIGNMENT_PATTERN + PRICE_PATTERN + ")";
 
-    private static final String SET_PRICE = "(\\bprice" + ASSIGNMENT_PATTERN + PRICE_PATTERN + ")";
+    //Milk props
+    private static final String SET_FATTINESS = "(fattiness" + ASSIGNMENT_PATTERN + "\\d\\.\\d)";
 
-    private static final String SET_BRAND = "(\\bbrand" + ASSIGNMENT_PATTERN + NOT_NULL_STRING_PATTERN + ")";
+    private static final String SET_BRAND = "(brand" + ASSIGNMENT_PATTERN + NOT_NULL_STRING_PATTERN + ")";
 
-    private static final String COLUMN_VALUE_IDENTIFIER = "[\\w]*";
+    //Meat & Bread props
+    private static final String SET_TYPE = "(type" + ASSIGNMENT_PATTERN + "\\w{1,20})";
 
-    private static final String PRIMARY_KEY = "(\\bid" + ASSIGNMENT_PATTERN + ID_PATTERN + ")";
+    //PK
+    private static final String PRIMARY_KEY = "(id" + ASSIGNMENT_PATTERN + ID_PATTERN + ")";
 
     private static final String PRIMARY_KEYS = PRIMARY_KEY + "\\s*(,\\s*" + PRIMARY_KEY + "\\s*)";
 
-    private static final String CATHEGORY_COMMAND_PREFIX = "cathegory";
+    //Set exprs
+    private static final String SET_MILK_PROPS = "(milk)\\s+" + PRIMARY_KEY + "\\s+(" + SET_PRICE + "|"
+            + SET_FATTINESS + "|" + SET_BRAND + ")";
 
-    private static final String GOODS_COMMAND_PREFIX = "goods";
+    private static final String SET_BREAD_OR_MEAT_PROPS = "\\b(bread|meat)\\b\\s+" + PRIMARY_KEY + "\\s+("
+            + SET_PRICE + "|" + SET_TYPE + ")";
 
+    //Commands
     private static final String INSERT_COMMAND = "insert";
 
     private static final String DELETE_COMMAND = "delete";
@@ -58,21 +50,13 @@ public class InteractionManager {
     private static final String SHOW_COMMAND = "show";
 
     private static final Pattern[] COMMAND_PATTERNS = {
-        Pattern.compile("\\s*(" + CATHEGORY_COMMAND_PREFIX + ")\\s+(" + INSERT_COMMAND + ")()\\s+(" + SET_NAME +
-                        "\\s*,\\s*" + SET_DESCRIPTION + ")\\s*"),
-        Pattern.compile("\\s*(" + GOODS_COMMAND_PREFIX + ")\\s+(" + INSERT_COMMAND + ")()\\s+(" + SET_CATHEGORY_ID +
-                        "\\s*,\\s*" + SET_PRICE + "'\\s*,\\s*" + SET_BRAND + ")\\s*"),
-        Pattern.compile("\\s*(" + CATHEGORY_COMMAND_PREFIX + ")\\s+(" + DELETE_COMMAND + ")\\s+(" + PRIMARY_KEYS +
-                        ")()\\s*"),
-        Pattern.compile("\\s*(" + GOODS_COMMAND_PREFIX + ")\\s+(" + DELETE_COMMAND + ")\\s+(" + PRIMARY_KEYS +
-                        ")()\\s*"),
-        Pattern.compile("\\s*(" + CATHEGORY_COMMAND_PREFIX + ")\\s+(" + UPDATE_COMMAND + ")\\s+(" + PRIMARY_KEY +
-                        ")\\s+(" + SET_NAME + "|" + SET_DESCRIPTION + ")\\s*"),
-        Pattern.compile("\\s*(" + GOODS_COMMAND_PREFIX + ")\\s+(" + UPDATE_COMMAND + ")\\s+(" + PRIMARY_KEY + ")\\s+(" +
-                        SET_CATHEGORY_ID + "|" + SET_PRICE + "|" + SET_BRAND + ")\\s*"),
-        Pattern.compile("\\s*(" + CATHEGORY_COMMAND_PREFIX + "|" + GOODS_COMMAND_PREFIX + ")\\s+(" + SHOW_COMMAND +
-                        ")()()\\s*"),
-        Pattern.compile("\\s*(" + GOODS_COMMAND_PREFIX + "|" + GOODS_COMMAND_PREFIX + ")\\s+(" + SHOW_COMMAND +")\\s*"),
+        Pattern.compile("\\s*(" + INSERT_COMMAND + ")\\s+milk\\s+(" + SET_PRICE + "\\s*,\\s*" + SET_FATTINESS
+                + "\\s*,\\s*" + SET_BRAND + ")\\s*"),
+        Pattern.compile("\\s*(" + INSERT_COMMAND + ")\\s+\\b(meat|bread)\\b\\s+(" + SET_PRICE + "\\s*,\\s*"
+                + SET_TYPE + ")\\s*"),
+        Pattern.compile("\\s*(" + DELETE_COMMAND + ")\\s+(\\b(meat|milk|bread)\\b)\\s+(" + PRIMARY_KEYS + ")\\s*"),
+        Pattern.compile("\\s*(" + UPDATE_COMMAND + ")\\s+(" + SET_MILK_PROPS + "|" + SET_BREAD_OR_MEAT_PROPS + ")\\s*"),
+        Pattern.compile("\\s*(" + SHOW_COMMAND + ")\\s+(\\b(meat|milk|bread)\\b)\\s*"),
     };
 
     private static final Hashtable<String, CommandType> nameToCommandType = new Hashtable<String, CommandType>() {
