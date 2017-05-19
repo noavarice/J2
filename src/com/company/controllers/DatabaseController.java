@@ -7,11 +7,11 @@ import java.sql.*;
 import java.util.Properties;
 
 public class DatabaseController implements IController {
-    private static final String INSERT_STMT = "INSERT INTO %1 (%2) VALUES (%3)";
+    private static final String INSERT_STMT = "INSERT INTO products (%1) VALUES (%2)";
 
-    private static final String DELETE_STMT = "DELETE FROM %1 WHERE id = %2";
+    private static final String DELETE_STMT = "DELETE FROM products WHERE id = %1";
 
-    private static final String UPDATE_STMT = "UPDATE %1 SET %2 = %3";
+    private static final String UPDATE_STMT = "UPDATE products SET %1 = %2";
 
     private String tableName = "";
 
@@ -23,31 +23,38 @@ public class DatabaseController implements IController {
         return props;
     }
 
-    public DatabaseController(String filePath) throws ClassNotFoundException,
-                                                      InstantiationException,
-                                                      IllegalAccessException,
-                                                      IOException,
-                                                      SQLException
+    public DatabaseController(String filePath) throws
+            ClassNotFoundException,
+            InstantiationException,
+            IllegalAccessException,
+            IOException,
+            SQLException
     {
-        /*Properties props = getConnectionProperties(filePath);
-        Class.forName(props.getProperty("driver")).newInstance();
-        StringBuilder builder = new StringBuilder();
-        builder.append(props.getProperty("url"))
-               .append("user=")
-               .append(props.getProperty("username"))
-               .append("&password=")
-               .append(props.getProperty("password"));
-        connection = DriverManager.getConnection(builder.toString());*/
+        Properties props = getConnectionProperties(filePath);
+        Class.forName("com.mysql.jdbc.Driver");
+        connection = DriverManager.getConnection(
+                props.getProperty("url"),
+                props.getProperty("username"),
+                props.getProperty("password"));
     }
 
-    public void insert(Properties props)
+    public void insert(Properties props) throws SQLException
     {
-        StringBuilder columnNamesBuilder = new StringBuilder();
-        StringBuilder columnValuesBuilder = new StringBuilder();
+        StringBuilder columnNames = new StringBuilder();
+        StringBuilder columnValues = new StringBuilder();
         for (String columnName : props.stringPropertyNames()) {
-            columnNamesBuilder.append(columnName);
-            columnValuesBuilder.append(props.get(columnName));
+            columnNames.append(columnName).append(",");
+            String value = props.getProperty(columnName);
+            if (columnName == "brand" || columnName == "product_name") {
+                value = "\"" + value + "\"";
+            }
+            columnValues.append(value).append(",");
         }
+        columnNames.deleteCharAt(columnNames.length() - 1);
+        columnValues.deleteCharAt(columnValues.length() - 1);
+        String query = "INSERT INTO products (" + columnNames.toString() + ") values (" + columnValues.toString() + ");";
+        Statement s = connection.createStatement();
+        s.execute(query);
     }
 
     public void delete(int id)

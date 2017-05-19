@@ -1,11 +1,24 @@
 package com.company.interaction;
 
-import com.company.controllers.AbstractController;
+import com.company.controllers.IController;
 
+import javax.swing.*;
+import java.sql.SQLException;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+enum CommandType {
+    INSERT,
+    DELETE,
+    UPDATE,
+    SHOW,
+}
+
+enum CommandPart {
+    COMMAND_TYPE,
+}
 
 public class InteractionManager {
     private static final String ASSIGNMENT_PATTERN = "\\s*=\\s*";
@@ -50,7 +63,7 @@ public class InteractionManager {
     private static final String SHOW_COMMAND = "show";
 
     private static final Pattern[] COMMAND_PATTERNS = {
-        Pattern.compile("\\s*(" + INSERT_COMMAND + ")\\s+milk\\s+(" + SET_PRICE + "\\s*,\\s*" + SET_FATTINESS
+        Pattern.compile("\\s*(" + INSERT_COMMAND + ")\\s+(milk)\\s+(" + SET_PRICE + "\\s*,\\s*" + SET_FATTINESS
                 + "\\s*,\\s*" + SET_BRAND + ")\\s*"),
         Pattern.compile("\\s*(" + INSERT_COMMAND + ")\\s+\\b(meat|bread)\\b\\s+(" + SET_PRICE + "\\s*,\\s*"
                 + SET_TYPE + ")\\s*"),
@@ -68,27 +81,48 @@ public class InteractionManager {
         }
     };
 
-    private static TerminalCommand getCommandFromInput(String userInput) {
-        // прогоняем строку по регуляркам, если нашли совпадение - создаем из строки команду
+    private static Matcher getMatcherFromInput(String userInput) {
         for (int i = 0; i < COMMAND_PATTERNS.length; ++i) {
             Matcher matcher = COMMAND_PATTERNS[i].matcher(userInput);
             if (matcher.matches()) {
-                String tableName = matcher.group(CommandPart.TABLE_NAME.ordinal());
-                CommandType type = nameToCommandType.get(matcher.group(CommandPart.COMMAND_NAME.ordinal()));
-                String idString = matcher.group(CommandPart.PRIMARY_KEY.ordinal());
-                int id = idString.isEmpty() ? -1 : Integer.parseInt(idString);
-                String columnValuesPairs = matcher.group(CommandPart.SET_VALUES_STATEMENTS.ordinal());
-                return new TerminalCommand(tableName, type, id, columnValuesPairs);
+                return matcher;
             }
         }
-        return new TerminalCommand();
+        return null;
     }
 
-    private static final String PAIRS_PATTERN = "\\s*(\\w+)" + ASSIGNMENT_PATTERN + "(([^\\s]+)|(" +
-                                                NOT_NULL_STRING_PATTERN + ")|(" + NULL_STRING_PATTERN + "))\\s*";
-
-    public static boolean execute(AbstractController controller, String userInput)
+    public static boolean execute(IController controller, String userInput) throws SQLException
     {
-        return controller.tryExecute(getCommandFromInput(userInput));
+        Matcher matcher = getMatcherFromInput(userInput);
+        if (matcher == null) {
+            return false;
+        }
+        switch (nameToCommandType.get(matcher.group(1))) {
+            case INSERT: {
+                Properties props = new Properties();
+                props.setProperty("product_name", matcher.group(2));
+                String[] setValues = matcher.group(3).split(",");
+                for (int i = 0; i < setValues.length; ++i) {
+                    String[] pair = setValues[i].split("=");
+                    props.setProperty(pair[0].trim(), pair[1].trim());
+                }
+                controller.insert(props);
+            }
+            break;
+
+            case UPDATE: {
+                Properties props = new Properties();
+                Matcher m = Pattern.compile(SET_MILK_PROPS + "|" + SET_BREAD_OR_MEAT_PROPS).matcher(userInput);
+                if (!m.matches()) {
+                    return false;
+                }
+                props.setProperty("product_name", m.group(1));
+                String[] pair = m.group(3).split("=");
+                props.setProperty(pair[0].trim(), pair[1].trim());
+                controller.update(Integer.parseInt(m.group(2)), props);
+            }
+            break;
+        }
+        return true;
     }
 }
