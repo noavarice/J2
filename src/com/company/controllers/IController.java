@@ -4,11 +4,11 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public interface IController {
-    void insert(Properties props) throws SQLException;
+    boolean insert(Properties props);
 
-    void delete(int id);
+    boolean delete(int id);
 
-    void update(int id, Properties props);
+    boolean update(int id, Properties props);
 
     void show();
 }

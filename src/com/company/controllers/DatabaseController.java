@@ -7,14 +7,6 @@ import java.sql.*;
 import java.util.Properties;
 
 public class DatabaseController implements IController {
-    private static final String INSERT_STMT = "INSERT INTO products (%1) VALUES (%2)";
-
-    private static final String DELETE_STMT = "DELETE FROM products WHERE id = %1";
-
-    private static final String UPDATE_STMT = "UPDATE products SET %1 = %2";
-
-    private String tableName = "";
-
     private Connection connection;
 
     private Properties getConnectionProperties(String filePath) throws IOException {
@@ -38,7 +30,7 @@ public class DatabaseController implements IController {
                 props.getProperty("password"));
     }
 
-    public void insert(Properties props) throws SQLException
+    public boolean insert(Properties props)
     {
         StringBuilder columnNames = new StringBuilder();
         StringBuilder columnValues = new StringBuilder();
@@ -53,16 +45,27 @@ public class DatabaseController implements IController {
         columnNames.deleteCharAt(columnNames.length() - 1);
         columnValues.deleteCharAt(columnValues.length() - 1);
         String query = "INSERT INTO products (" + columnNames.toString() + ") values (" + columnValues.toString() + ");";
-        Statement s = connection.createStatement();
-        s.execute(query);
+        try {
+            Statement s = connection.createStatement();
+            return s.execute(query);
+        } catch (SQLException e) {
+            return false;
+        }
     }
 
-    public void delete(int id)
+    public boolean delete(int id)
     {
+        try {
+            Statement s = connection.createStatement();
+            return s.execute("DELETE FROM products WHERE id=" + Integer.toString(id) + ";");
+        } catch (SQLException e) {
+            return false;
+        }
     }
 
-    public void update(int id, Properties props)
+    public boolean update(int id, Properties props)
     {
+        return true;
     }
 
     public void show()
