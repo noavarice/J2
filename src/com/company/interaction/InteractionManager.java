@@ -34,7 +34,7 @@ public class InteractionManager {
     private static final String SET_PRICE = "(price" + ASSIGNMENT_PATTERN + PRICE_PATTERN + ")";
 
     //Milk props
-    private static final String SET_FATTINESS = "(fattiness" + ASSIGNMENT_PATTERN + "\\d\\.\\d)";
+    private static final String SET_FATTINESS = "(fattiness" + ASSIGNMENT_PATTERN + "\\d)";
 
     private static final String SET_BRAND = "(brand" + ASSIGNMENT_PATTERN + NOT_NULL_STRING_PATTERN + ")";
 
@@ -67,7 +67,7 @@ public class InteractionManager {
                 + "\\s*,\\s*" + SET_BRAND + ")\\s*"),
         Pattern.compile("\\s*(" + INSERT_COMMAND + ")\\s+\\b(meat|bread)\\b\\s+(" + SET_PRICE + "\\s*,\\s*"
                 + SET_TYPE + ")\\s*"),
-        Pattern.compile("\\s*(" + DELETE_COMMAND + ")\\s+(\\b(meat|milk|bread)\\b)\\s+(" + PRIMARY_KEYS + ")\\s*"),
+        Pattern.compile("\\s*(" + DELETE_COMMAND + ")\\s+(" + PRIMARY_KEYS + ")\\s*"),
         Pattern.compile("\\s*(" + UPDATE_COMMAND + ")\\s+(" + SET_MILK_PROPS + "|" + SET_BREAD_OR_MEAT_PROPS + ")\\s*"),
         Pattern.compile("\\s*(" + SHOW_COMMAND + ")\\s+(\\b(meat|milk|bread)\\b)\\s*"),
     };
@@ -91,7 +91,7 @@ public class InteractionManager {
         return null;
     }
 
-    public static boolean execute(IController controller, String userInput) throws SQLException
+    public static boolean execute(IController controller, String userInput)
     {
         Matcher matcher = getMatcherFromInput(userInput);
         if (matcher == null) {
@@ -106,9 +106,8 @@ public class InteractionManager {
                     String[] pair = setValues[i].split("=");
                     props.setProperty(pair[0].trim(), pair[1].trim());
                 }
-                controller.insert(props);
+                return controller.insert(props);
             }
-            break;
 
             case UPDATE: {
                 Properties props = new Properties();
@@ -119,9 +118,18 @@ public class InteractionManager {
                 props.setProperty("product_name", m.group(1));
                 String[] pair = m.group(3).split("=");
                 props.setProperty(pair[0].trim(), pair[1].trim());
-                controller.update(Integer.parseInt(m.group(2)), props);
+                return controller.update(Integer.parseInt(m.group(2)), props);
             }
-            break;
+
+            case DELETE: {
+                Properties props = new Properties();
+                String[] pks = matcher.group(3).split(",");
+                boolean result = true;
+                for (int i = 0; i < pks.length; ++i) {
+                    result = result && controller.delete(Integer.parseInt(pks[i]));
+                }
+                return result;
+            }
         }
         return true;
     }
