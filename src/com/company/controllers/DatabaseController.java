@@ -1,5 +1,7 @@
 package com.company.controllers;
 
+import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,12 +15,6 @@ public class DatabaseController implements IController {
 
     private PreparedStatement deleteStmt;
 
-    private Properties getConnectionProperties(String filePath) throws IOException {
-        Properties props = new Properties();
-        props.load(new FileInputStream(new File(filePath)));
-        return props;
-    }
-
     public DatabaseController(String filePath) throws
             ClassNotFoundException,
             InstantiationException,
@@ -26,12 +22,14 @@ public class DatabaseController implements IController {
             IOException,
             SQLException
     {
-        Properties props = getConnectionProperties(filePath);
-        Class.forName("com.mysql.jdbc.Driver");
-        connection = DriverManager.getConnection(
-                props.getProperty("url"),
-                props.getProperty("username"),
-                props.getProperty("password"));
+        Properties props = new Properties();
+        props.load(new FileInputStream(new File(filePath)));
+        MysqlDataSource ds = new MysqlDataSource();
+        ds.setServerName("localhost");
+        ds.setDatabaseName("shop");
+        ds.setUser(props.getProperty("username"));
+        ds.setPassword(props.getProperty("password"));
+        connection = ds.getConnection();
         deleteStmt = connection.prepareStatement("DELETE FROM products WHERE id = ?;");
         showStmt = connection.prepareStatement("SELECT * FROM products;");
     }
