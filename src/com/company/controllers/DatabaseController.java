@@ -47,12 +47,12 @@ public class DatabaseController implements IController {
         columnValues.deleteCharAt(columnValues.length() - 1);
         String query = "INSERT INTO products (" + columnNames.toString() + ") VALUES (" + columnValues.toString() + ");";
         Statement s = connection.createStatement();
-        return s.execute(query);
+        return s.executeUpdate(query) != 0;
     }
 
     public boolean delete(int id) throws SQLException {
         deleteStmt.setInt(1, id);
-        return deleteStmt.execute();
+        return deleteStmt.executeUpdate() != 0;
     }
 
     public boolean update(int id, Properties props)
