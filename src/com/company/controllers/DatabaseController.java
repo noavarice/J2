@@ -9,6 +9,10 @@ import java.util.Properties;
 public class DatabaseController implements IController {
     private Connection connection;
 
+    private PreparedStatement showStmt;
+
+    private PreparedStatement deleteStmt;
+
     private Properties getConnectionProperties(String filePath) throws IOException {
         Properties props = new Properties();
         props.load(new FileInputStream(new File(filePath)));
@@ -28,39 +32,27 @@ public class DatabaseController implements IController {
                 props.getProperty("url"),
                 props.getProperty("username"),
                 props.getProperty("password"));
+        deleteStmt = connection.prepareStatement("DELETE FROM products WHERE id = ?;");
+        showStmt = connection.prepareStatement("SELECT * FROM products;");
     }
 
-    public boolean insert(Properties props)
-    {
+    public boolean insert(Properties props) throws SQLException {
         StringBuilder columnNames = new StringBuilder();
         StringBuilder columnValues = new StringBuilder();
         for (String columnName : props.stringPropertyNames()) {
             columnNames.append(columnName).append(",");
-            String value = props.getProperty(columnName);
-            if (columnName == "brand" || columnName == "product_name") {
-                value = "\"" + value + "\"";
-            }
-            columnValues.append(value).append(",");
+            columnValues.append(props.getProperty(columnName)).append(",");
         }
         columnNames.deleteCharAt(columnNames.length() - 1);
         columnValues.deleteCharAt(columnValues.length() - 1);
-        String query = "INSERT INTO products (" + columnNames.toString() + ") values (" + columnValues.toString() + ");";
-        try {
-            Statement s = connection.createStatement();
-            return s.execute(query);
-        } catch (SQLException e) {
-            return false;
-        }
+        String query = "INSERT INTO products (" + columnNames.toString() + ") VALUES (" + columnValues.toString() + ");";
+        Statement s = connection.createStatement();
+        return s.execute(query);
     }
 
-    public boolean delete(int id)
-    {
-        try {
-            Statement s = connection.createStatement();
-            return s.execute("DELETE FROM products WHERE id=" + Integer.toString(id) + ";");
-        } catch (SQLException e) {
-            return false;
-        }
+    public boolean delete(int id) throws SQLException {
+        deleteStmt.setInt(1, id);
+        return deleteStmt.execute();
     }
 
     public boolean update(int id, Properties props)
@@ -68,7 +60,7 @@ public class DatabaseController implements IController {
         return true;
     }
 
-    public void show()
-    {
+    public void show() throws SQLException {
+        showStmt.execute();
     }
 }
