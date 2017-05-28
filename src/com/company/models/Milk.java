@@ -12,6 +12,16 @@ public class Milk extends Product {
         this.brand = brand;
     }
 
+    public double getFattiness()
+    {
+        return fattiness;
+    }
+
+    public String getBrand()
+    {
+        return brand;
+    }
+
     public String toString()
     {
         StringBuilder b = new StringBuilder();
