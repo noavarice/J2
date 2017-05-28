@@ -8,7 +8,7 @@ public interface IController {
 
     boolean delete(int id) throws SQLException;
 
-    boolean update(int id, Properties props);
+    boolean update(int id, Properties props) throws SQLException;
 
     void show() throws SQLException;
 }
