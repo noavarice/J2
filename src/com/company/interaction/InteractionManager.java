@@ -34,18 +34,21 @@ public class InteractionManager {
 
     private static final String SET_FLOUR_TYPE = "flour_type" + ASSIGNMENT_PATTERN + NOT_NULL_STRING_PATTERN;
 
+    private static final String SET_MEAT_TYPE = "meat_type" + ASSIGNMENT_PATTERN + NOT_NULL_STRING_PATTERN;
+
     //PK
     private static final String PRIMARY_KEY = "\\d+";
 
     private static final String PRIMARY_KEYS = PRIMARY_KEY + "\\s*(,\\s*" + PRIMARY_KEY + "\\s*)*";
 
     private static final String SET_COLUMN = "((" + SET_PRICE + ")|(" + SET_BRAND + ")|(" + SET_FATTINESS + ")|(" +
-            SET_TYPE + ")|(" + SET_FLOUR_TYPE + "))";
+            SET_TYPE + ")|(" + SET_FLOUR_TYPE + ")|(" + SET_MEAT_TYPE + "))";
 
     private static final Pattern[] COMMAND_PATTERNS = {
         Pattern.compile("\\s*(insert)\\s+(milk)\\s+(" + SET_PRICE + "\\s*,\\s*" + SET_FATTINESS + "\\s*,\\s*"
                 + SET_BRAND + ")\\s*"),
         Pattern.compile("\\s*(insert)\\s+(bread)\\s+(" + SET_PRICE + "\\s*,\\s*" + SET_FLOUR_TYPE + ")\\s*"),
+        Pattern.compile("\\s*(insert)\\s+(meat)\\s+(" + SET_PRICE + "\\s*,\\s*" + SET_MEAT_TYPE + ")\\s*"),
         Pattern.compile("\\s*(delete)\\s+(" + PRIMARY_KEYS + ")\\s*"),
         Pattern.compile("\\s*(update)\\s+id" + ASSIGNMENT_PATTERN + "(" + PRIMARY_KEY + ")\\s+(" + SET_COLUMN +
                 "(\\s*,\\s*" + SET_COLUMN + ")*)\\s*"),
