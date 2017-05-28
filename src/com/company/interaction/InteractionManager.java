@@ -37,19 +37,13 @@ public class InteractionManager {
 
     private static final String PRIMARY_KEYS = PRIMARY_KEY + "\\s*(,\\s*" + PRIMARY_KEY + "\\s*)*";
 
-    //Set exprs
-    private static final String SET_MILK_PROPS = "(milk)\\s+" + PRIMARY_KEY + "\\s+(" + SET_PRICE + "|"
-            + SET_FATTINESS + "|" + SET_BRAND + ")";
-
-    private static final String SET_BREAD_OR_MEAT_PROPS = "\\b(bread|meat)\\b\\s+(" + PRIMARY_KEY + ")\\s+("
-            + SET_PRICE + "|" + SET_TYPE + ")";
-
     private static final Pattern[] COMMAND_PATTERNS = {
         Pattern.compile("\\s*(insert)\\s+(milk)\\s+(" + SET_PRICE + "\\s*,\\s*" + SET_FATTINESS + "\\s*,\\s*"
                 + SET_BRAND + ")\\s*"),
         Pattern.compile("\\s*(insert)\\s+\\b(meat|bread)\\b\\s+(" + SET_PRICE + "\\s*,\\s*" + SET_TYPE + ")\\s*"),
         Pattern.compile("\\s*(delete)\\s+(" + PRIMARY_KEYS + ")\\s*"),
-        Pattern.compile("\\s*(update)\\s+(" + SET_MILK_PROPS + "|" + SET_BREAD_OR_MEAT_PROPS + ")\\s*"),
+        Pattern.compile("\\s*(update)\\s+id" + ASSIGNMENT_PATTERN + "(" + PRIMARY_KEY + ")\\s+((" + SET_PRICE + ")|(" +
+                SET_BRAND + ")|(" + SET_FATTINESS + ")|(" + SET_TYPE + "))\\s*"),
         Pattern.compile("\\s*(show)\\s*"),
     };
 
@@ -91,14 +85,10 @@ public class InteractionManager {
 
             case UPDATE: {
                 Properties props = new Properties();
-                Matcher m = Pattern.compile(SET_MILK_PROPS + "|" + SET_BREAD_OR_MEAT_PROPS).matcher(userInput);
-                if (!m.matches()) {
-                    return false;
-                }
-                props.setProperty("product_name", "\"" + m.group(1) + "\"");
-                String[] pair = m.group(3).split("=");
+                int id = Integer.parseInt(matcher.group(2));
+                String[] pair = matcher.group(3).split("=");
                 props.setProperty(pair[0].trim(), pair[1].trim());
-                return controller.update(Integer.parseInt(m.group(2)), props);
+                return controller.update(id , props);
             }
 
             case DELETE: {
@@ -113,6 +103,7 @@ public class InteractionManager {
             case SHOW: {
                 controller.show();
             }
+            break;
         }
         return true;
     }
