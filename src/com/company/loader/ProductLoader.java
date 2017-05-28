@@ -1,4 +1,4 @@
-package loader;
+package com.company.loader;
 
 import com.company.models.Product;
 
