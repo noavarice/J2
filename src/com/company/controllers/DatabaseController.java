@@ -1,12 +1,15 @@
 package com.company.controllers;
 
+import com.company.models.Product;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 import java.io.*;
 import java.sql.*;
-import java.util.Properties;
+import java.util.*;
 
 public class DatabaseController implements IController {
+    private LinkedList<Product> productList;
+
     private Connection connection;
 
     private PreparedStatement deleteStmt;
@@ -19,6 +22,7 @@ public class DatabaseController implements IController {
             SQLException,
             IOException
     {
+        productList = new LinkedList<>();
         Properties props = new Properties();
         props.load(new FileInputStream(new File(filePath)));
         MysqlDataSource ds = new MysqlDataSource();
