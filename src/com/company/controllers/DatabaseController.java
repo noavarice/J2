@@ -2,10 +2,7 @@ package com.company.controllers;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.sql.*;
 import java.util.Properties;
 
@@ -83,7 +80,6 @@ public class DatabaseController implements IController {
         return true;
     }
 
-    public void show() throws SQLException {
-        showStmt.execute();
+    public void show(PrintStream printStream) throws SQLException {
     }
 }
