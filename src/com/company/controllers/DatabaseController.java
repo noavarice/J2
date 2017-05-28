@@ -4,6 +4,7 @@ import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.*;
 import java.util.Properties;
@@ -18,11 +19,8 @@ public class DatabaseController implements IController {
     private PreparedStatement showStmt;
 
     public DatabaseController(String filePath) throws
-            ClassNotFoundException,
-            InstantiationException,
-            IllegalAccessException,
-            IOException,
-            SQLException
+            SQLException,
+            IOException
     {
         Properties props = new Properties();
         props.load(new FileInputStream(new File(filePath)));
