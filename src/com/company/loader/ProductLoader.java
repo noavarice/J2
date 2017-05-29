@@ -7,7 +7,6 @@ import com.company.models.Product;
 
 import java.sql.*;
 import java.util.Hashtable;
-import java.util.LinkedList;
 import java.util.Properties;
 
 enum ProductType {
@@ -25,14 +24,15 @@ public class ProductLoader {
         }
     };
 
-    public static LinkedList<Product> loadFromDatabase(Connection databaseConnection) throws
+    public static Hashtable<Integer, Product> loadFromDatabase(Connection databaseConnection) throws
             SQLException
     {
-        LinkedList<Product> result = new LinkedList<>();
+        Hashtable<Integer, Product> result = new Hashtable<>();
         Statement s = databaseConnection.createStatement();
         ResultSet rs = s.executeQuery("SELECT * FROM products");
         while (rs.next()) {
             Product temp = null;
+            int id = rs.getInt("id");
             double price = rs.getDouble("price");
             switch (nameToType.get(rs.getString("product_name"))) {
                 case Bread: {
@@ -50,7 +50,7 @@ public class ProductLoader {
                 }
                 break;
             }
-            result.add(temp);
+            result.put(id, temp);
         }
         return result;
     }
@@ -82,7 +82,7 @@ public class ProductLoader {
         return result;
     }
 
-    public static LinkedList<Product> loadFromFile(String filePath)
+    public static Hashtable<Integer, Product> loadFromFile(String filePath)
     {
         return null;
     }

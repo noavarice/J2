@@ -9,7 +9,7 @@ import java.sql.*;
 import java.util.*;
 
 public class DatabaseController implements IController {
-    private LinkedList<Product> productList;
+    private Hashtable<Integer, Product> productMap;
 
     private Connection connection;
 
@@ -35,7 +35,7 @@ public class DatabaseController implements IController {
         deleteStmt = connection.prepareStatement("DELETE FROM products WHERE id = ?;");
         selectSingleItemStmt = connection.prepareStatement("SELECT * FROM products WHERE id = ?;");
         showStmt = connection.prepareStatement("SELECT * FROM products;");
-        productList = ProductLoader.loadFromDatabase(connection);
+        productMap = ProductLoader.loadFromDatabase(connection);
     }
 
     public boolean insert(Properties props) throws
@@ -51,9 +51,11 @@ public class DatabaseController implements IController {
         columnValues.deleteCharAt(columnValues.length() - 1);
         String query = "INSERT INTO products (" + columnNames.toString() + ") VALUES (" + columnValues.toString() +");";
         Statement s = connection.createStatement();
-        boolean result = s.executeUpdate(query) != 0;
+        boolean result = s.executeUpdate(query, Statement.RETURN_GENERATED_KEYS) != 0;
         if (result) {
-            productList.add(ProductLoader.getProductFromProperties(props));
+            ResultSet rs = s.getGeneratedKeys();
+            rs.next();
+            productMap.put(rs.getInt(1), ProductLoader.getProductFromProperties(props));
             connection.commit();
         }
         return result;
@@ -92,7 +94,7 @@ public class DatabaseController implements IController {
             SQLException,
             IOException
     {
-        for (Product p : productList) {
+        for (Product p : productMap.values()) {
             out.write(p.toString().getBytes());
             out.write('\n');
         }
