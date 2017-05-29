@@ -25,8 +25,8 @@ public class Milk extends Product {
     public String toString()
     {
         StringBuilder b = new StringBuilder();
-        b.append("Milk, price: ").append(price).append(", fattiness: ").append(fattiness).append(", brand: \"")
-                .append(brand).append("\"");
+        b.append("Milk, price: ").append(price).append(", fattiness: ").append(fattiness).append(", brand: ")
+                .append(brand);
         return b.toString();
     }
 }

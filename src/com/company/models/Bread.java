@@ -17,7 +17,7 @@ public class Bread extends Product {
     public String toString()
     {
         StringBuilder b = new StringBuilder();
-        b.append("Bread, price: ").append(price).append(", flour type: \"").append(flourType).append("\"");
+        b.append("Bread, price: ").append(price).append(", flour type: ").append(flourType);
         return b.toString();
     }
 }
