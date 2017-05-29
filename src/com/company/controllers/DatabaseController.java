@@ -85,6 +85,7 @@ public class DatabaseController extends AbstractController {
             String query = "UPDATE products SET " + columnName + " = " + value + " WHERE id = " + String.valueOf(id);
             s.executeUpdate(query);
         }
+        updateProduct(productMap.get(new Integer((id))), props);
         connection.commit();
         return true;
     }
