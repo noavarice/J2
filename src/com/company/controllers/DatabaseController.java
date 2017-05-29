@@ -14,8 +14,6 @@ public class DatabaseController extends AbstractController {
 
     private PreparedStatement selectSingleItemStmt;
 
-    private PreparedStatement showStmt;
-
     public DatabaseController(String filePath) throws
             SQLException,
             IOException
@@ -31,7 +29,6 @@ public class DatabaseController extends AbstractController {
         connection.setAutoCommit(false);
         deleteStmt = connection.prepareStatement("DELETE FROM products WHERE id = ?;");
         selectSingleItemStmt = connection.prepareStatement("SELECT * FROM products WHERE id = ?;");
-        showStmt = connection.prepareStatement("SELECT * FROM products;");
         productMap = ProductLoader.loadFromDatabase(connection);
     }
 
