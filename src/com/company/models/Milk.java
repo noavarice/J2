@@ -1,5 +1,7 @@
 package com.company.models;
 
+import java.util.zip.DataFormatException;
+
 public class Milk extends Product {
     private double fattiness;
 
@@ -17,9 +19,27 @@ public class Milk extends Product {
         return fattiness;
     }
 
+    public void setFattiness(double newFattiness) throws
+            DataFormatException
+    {
+        if (newFattiness <= 0) {
+            throw new DataFormatException();
+        }
+        fattiness = newFattiness;
+    }
+
     public String getBrand()
     {
         return brand;
+    }
+
+    public void setBrand(String newBrand) throws
+            NullPointerException
+    {
+        if (newBrand == null) {
+            throw new NullPointerException();
+        }
+        brand = newBrand;
     }
 
     public String toString()

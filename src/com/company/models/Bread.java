@@ -14,6 +14,15 @@ public class Bread extends Product {
         return flourType;
     }
 
+    public void setFlourType(String newFlourType) throws
+            NullPointerException
+    {
+        if (newFlourType == null) {
+            throw new NullPointerException();
+        }
+        flourType = newFlourType;
+    }
+
     public String toString()
     {
         StringBuilder b = new StringBuilder();

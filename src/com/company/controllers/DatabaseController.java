@@ -79,6 +79,7 @@ public class DatabaseController implements IController {
         if (!set.next()) {
             return false;
         }
+        Product temp = productMap.get(new Integer(id));
         for (String columnName : props.stringPropertyNames()) {
             if (set.getBytes(columnName) == null) {
                 connection.rollback();

@@ -14,6 +14,15 @@ public class Meat extends Product {
         return meatType;
     }
 
+    public void setMeatType(String newMeatType) throws
+            NullPointerException
+    {
+        if (newMeatType == null) {
+            throw new NullPointerException();
+        }
+        meatType = newMeatType;
+    }
+
     public String toString()
     {
         StringBuilder b = new StringBuilder();
