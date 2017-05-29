@@ -7,6 +7,7 @@ import java.io.PrintStream;
 import java.sql.SQLException;
 import java.util.Hashtable;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -90,6 +91,12 @@ public class InteractionManager {
                     String[] pair = setValues[i].split("=");
                     props.setProperty(pair[0].trim(), pair[1].trim());
                 }
+                if (Double.parseDouble(props.getProperty("price")) == 0) {
+                    return false;
+                }
+                if (props.stringPropertyNames().contains("fattiness") && Double.parseDouble(props.getProperty("fattiness")) == 0) {
+                    return false;
+                }
                 return controller.insert(props);
             }
 
@@ -101,7 +108,14 @@ public class InteractionManager {
                     String[] pair = stmt.split("=");
                     props.setProperty(pair[0].trim(), pair[1].trim());
                 }
-                return controller.update(id , props);
+                Set<String> propNames = props.stringPropertyNames();
+                if (propNames.contains("price") && Double.parseDouble(props.getProperty("price")) == 0) {
+                    return false;
+                }
+                if (propNames.contains("fattiness") && Double.parseDouble(props.getProperty("fattiness")) == 0) {
+                    return false;
+                }
+                return controller.update(id, props);
             }
 
             case DELETE: {
