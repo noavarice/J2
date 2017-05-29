@@ -56,5 +56,6 @@ public class ProductLoader {
 
     public static LinkedList<Product> loadFromFile(String filePath)
     {
+        return null;
     }
 }
