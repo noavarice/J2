@@ -38,7 +38,9 @@ public class DatabaseController implements IController {
         productList = ProductLoader.loadFromDatabase(connection);
     }
 
-    public boolean insert(Properties props) throws SQLException {
+    public boolean insert(Properties props) throws
+            SQLException
+    {
         StringBuilder columnNames = new StringBuilder();
         StringBuilder columnValues = new StringBuilder();
         for (String columnName : props.stringPropertyNames()) {
@@ -52,6 +54,7 @@ public class DatabaseController implements IController {
         boolean result = s.executeUpdate(query) != 0;
         if (result) {
             connection.commit();
+            productList.add(ProductLoader.getProductFromProperties(props));
         }
         return result;
     }

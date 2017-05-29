@@ -8,6 +8,7 @@ import com.company.models.Product;
 import java.sql.*;
 import java.util.Hashtable;
 import java.util.LinkedList;
+import java.util.Properties;
 
 enum ProductType {
     Bread,
@@ -50,6 +51,30 @@ public class ProductLoader {
                 break;
             }
             result.add(temp);
+        }
+        return result;
+    }
+
+    public static Product getProductFromProperties(Properties props)
+    {
+        Product result = null;
+        double price = Double.parseDouble(props.getProperty("price"));
+        switch (nameToType.get(props.getProperty("prodict_name"))) {
+            case Bread: {
+                result = new Bread(price, props.getProperty("flour_type"));
+            }
+            break;
+
+            case Meat: {
+                result = new Meat(price, props.getProperty("meat_type"));
+            }
+            break;
+
+            case Milk: {
+                double fattiness = Double.parseDouble(props.getProperty("fattiness"));
+                result = new Milk(price, fattiness, props.getProperty("brand"));
+            }
+            break;
         }
         return result;
     }
