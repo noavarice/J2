@@ -59,7 +59,10 @@ public class ProductLoader {
     {
         Product result = null;
         double price = Double.parseDouble(props.getProperty("price"));
-        switch (nameToType.get(props.getProperty("prodict_name"))) {
+        StringBuilder productName = new StringBuilder(props.getProperty("product_name"));
+        productName.deleteCharAt(0);
+        productName.deleteCharAt(productName.length() - 1);
+        switch (nameToType.get(productName.toString())) {
             case Bread: {
                 result = new Bread(price, props.getProperty("flour_type"));
             }
