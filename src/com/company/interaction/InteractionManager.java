@@ -1,8 +1,11 @@
 package com.company.interaction;
 
 import com.company.controllers.AbstractController;
+import com.company.controllers.DatabaseController;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.sql.SQLException;
 import java.util.Hashtable;
@@ -16,6 +19,13 @@ enum CommandType {
     DELETE,
     UPDATE,
     SHOW,
+    EXIT
+}
+
+enum CommandResult {
+    SUCCEEDED,
+    FAILED,
+    FINISHED
 }
 
 public class InteractionManager {
@@ -48,14 +58,15 @@ public class InteractionManager {
             SET_TYPE + ")|(" + SET_FLOUR_TYPE + ")|(" + SET_MEAT_TYPE + "))";
 
     private static final Pattern[] COMMAND_PATTERNS = {
-        Pattern.compile("\\s*(insert)\\s+(milk)\\s+(" + SET_PRICE + "\\s*,\\s*" + SET_FATTINESS + "\\s*,\\s*"
-                + SET_BRAND + ")\\s*"),
-        Pattern.compile("\\s*(insert)\\s+(bread)\\s+(" + SET_PRICE + "\\s*,\\s*" + SET_FLOUR_TYPE + ")\\s*"),
-        Pattern.compile("\\s*(insert)\\s+(meat)\\s+(" + SET_PRICE + "\\s*,\\s*" + SET_MEAT_TYPE + ")\\s*"),
-        Pattern.compile("\\s*(delete)\\s+(" + PRIMARY_KEYS + ")\\s*"),
-        Pattern.compile("\\s*(update)\\s+id" + ASSIGNMENT_PATTERN + "(" + PRIMARY_KEY + ")\\s+(" + SET_COLUMN +
-                "(\\s*,\\s*" + SET_COLUMN + ")*)\\s*"),
-        Pattern.compile("\\s*(show)\\s*"),
+            Pattern.compile("\\s*(insert)\\s+(milk)\\s+(" + SET_PRICE + "\\s*,\\s*" + SET_FATTINESS + "\\s*,\\s*" +
+                    SET_BRAND + ")\\s*"),
+            Pattern.compile("\\s*(insert)\\s+(bread)\\s+(" + SET_PRICE + "\\s*,\\s*" + SET_FLOUR_TYPE + ")\\s*"),
+            Pattern.compile("\\s*(insert)\\s+(meat)\\s+(" + SET_PRICE + "\\s*,\\s*" + SET_MEAT_TYPE + ")\\s*"),
+            Pattern.compile("\\s*(delete)\\s+(" + PRIMARY_KEYS + ")\\s*"),
+            Pattern.compile("\\s*(update)\\s+id" + ASSIGNMENT_PATTERN + "(" + PRIMARY_KEY + ")\\s+(" + SET_COLUMN +
+                    "(\\s*,\\s*" + SET_COLUMN + ")*)\\s*"),
+            Pattern.compile("\\s*(show)\\s*"),
+            Pattern.compile(("\\s*(exit)\\s*")),
     };
 
     private static final Hashtable<String, CommandType> nameToCommandType = new Hashtable<String, CommandType>() {
@@ -64,6 +75,7 @@ public class InteractionManager {
             put("delete", CommandType.DELETE);
             put("update", CommandType.UPDATE);
             put("show", CommandType.SHOW);
+            put("exit", CommandType.EXIT);
         }
     };
 
@@ -77,10 +89,13 @@ public class InteractionManager {
         return null;
     }
 
-    public static boolean execute(AbstractController controller, String userInput) throws SQLException, IOException {
+    private static CommandResult execute(AbstractController controller, String userInput) throws
+            SQLException,
+            IOException
+    {
         Matcher matcher = getMatcherFromInput(userInput);
         if (matcher == null) {
-            return false;
+            return CommandResult.FAILED;
         }
         switch (nameToCommandType.get(matcher.group(1))) {
             case INSERT: {
@@ -92,12 +107,12 @@ public class InteractionManager {
                     props.setProperty(pair[0].trim(), pair[1].trim());
                 }
                 if (Double.parseDouble(props.getProperty("price")) == 0) {
-                    return false;
+                    return CommandResult.FAILED;
                 }
                 if (props.stringPropertyNames().contains("fattiness") && Double.parseDouble(props.getProperty("fattiness")) == 0) {
-                    return false;
+                    return CommandResult.FAILED;
                 }
-                return controller.insert(props);
+                return controller.insert(props) ? CommandResult.SUCCEEDED : CommandResult.FAILED;
             }
 
             case UPDATE: {
@@ -110,12 +125,12 @@ public class InteractionManager {
                 }
                 Set<String> propNames = props.stringPropertyNames();
                 if (propNames.contains("price") && Double.parseDouble(props.getProperty("price")) == 0) {
-                    return false;
+                    return CommandResult.FAILED;
                 }
                 if (propNames.contains("fattiness") && Double.parseDouble(props.getProperty("fattiness")) == 0) {
-                    return false;
+                    return CommandResult.FAILED;
                 }
-                return controller.update(id, props);
+                return controller.update(id, props) ? CommandResult.SUCCEEDED : CommandResult.FAILED;
             }
 
             case DELETE: {
@@ -124,14 +139,46 @@ public class InteractionManager {
                 for (String id : ids) {
                     result = controller.delete(Integer.parseInt(id.trim())) || result;
                 }
-                return result;
+                return result ? CommandResult.SUCCEEDED : CommandResult.FAILED;
             }
 
             case SHOW: {
                 controller.show(new PrintStream(System.out));
             }
             break;
+
+            case EXIT: {
+                return CommandResult.FINISHED;
+            }
         }
-        return true;
+        return CommandResult.SUCCEEDED;
+    }
+
+    public static void interact() throws
+            IOException,
+            SQLException
+    {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        DatabaseController c = new DatabaseController("/home/alexrazinkov/Projects/Java/conn");
+        String input = reader.readLine();
+        while (!input.isEmpty()) {
+            switch (execute(c, input)) {
+                case SUCCEEDED: {
+                    System.out.println("Command succeded");
+                }
+                break;
+
+                case FAILED: {
+                    System.out.println("Command failed");
+                }
+                break;
+
+                case FINISHED: {
+                    System.out.println("Exiting..");
+                    return;
+                }
+            }
+            input = reader.readLine();
+        }
     }
 }
