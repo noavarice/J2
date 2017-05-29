@@ -94,8 +94,12 @@ public class DatabaseController implements IController {
             SQLException,
             IOException
     {
-        for (Product p : productMap.values()) {
-            out.write(p.toString().getBytes());
+        List<Integer> keys = Collections.list(productMap.keys());
+        Collections.sort(keys);
+        for (Integer key : keys) {
+            out.write(String.valueOf(key).getBytes());
+            out.write(": ".getBytes());
+            out.write(productMap.get(key).toString().getBytes());
             out.write('\n');
         }
     }
