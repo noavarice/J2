@@ -2,6 +2,8 @@ package com.company.interaction;
 
 import com.company.controllers.IController;
 
+import java.io.IOException;
+import java.io.PrintStream;
 import java.sql.SQLException;
 import java.util.Hashtable;
 import java.util.Properties;
@@ -74,7 +76,7 @@ public class InteractionManager {
         return null;
     }
 
-    public static boolean execute(IController controller, String userInput) throws SQLException {
+    public static boolean execute(IController controller, String userInput) throws SQLException, IOException {
         Matcher matcher = getMatcherFromInput(userInput);
         if (matcher == null) {
             return false;
@@ -112,7 +114,7 @@ public class InteractionManager {
             }
 
             case SHOW: {
-                controller.show();
+                controller.show(new PrintStream(System.out));
             }
             break;
         }

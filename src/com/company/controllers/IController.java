@@ -1,6 +1,7 @@
 package com.company.controllers;
 
-import java.io.PrintStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.Properties;
 
@@ -11,5 +12,5 @@ public interface IController {
 
     boolean update(int id, Properties props) throws SQLException;
 
-    void show(PrintStream printStream) throws SQLException;
+    void show(OutputStream out) throws SQLException, IOException;
 }

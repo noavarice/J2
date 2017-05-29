@@ -1,5 +1,6 @@
 package com.company.controllers;
 
+import com.company.loader.ProductLoader;
 import com.company.models.Product;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
@@ -22,7 +23,6 @@ public class DatabaseController implements IController {
             SQLException,
             IOException
     {
-        productList = new LinkedList<>();
         Properties props = new Properties();
         props.load(new FileInputStream(new File(filePath)));
         MysqlDataSource ds = new MysqlDataSource();
@@ -35,6 +35,7 @@ public class DatabaseController implements IController {
         deleteStmt = connection.prepareStatement("DELETE FROM products WHERE id = ?;");
         selectSingleItemStmt = connection.prepareStatement("SELECT * FROM products WHERE id = ?;");
         showStmt = connection.prepareStatement("SELECT * FROM products;");
+        productList = ProductLoader.loadFromDatabase(connection);
     }
 
     public boolean insert(Properties props) throws SQLException {
@@ -84,6 +85,13 @@ public class DatabaseController implements IController {
         return true;
     }
 
-    public void show(PrintStream printStream) throws SQLException {
+    public void show(OutputStream out) throws
+            SQLException,
+            IOException
+    {
+        for (Product p : productList) {
+            out.write(p.toString().getBytes());
+            out.write('\n');
+        }
     }
 }
