@@ -61,10 +61,13 @@ public class DatabaseController implements IController {
         return result;
     }
 
-    public boolean delete(int id) throws SQLException {
+    public boolean delete(int id) throws
+            SQLException
+    {
         deleteStmt.setInt(1, id);
         boolean result = deleteStmt.executeUpdate() != 0;
         if (result) {
+            productMap.remove(new Integer(id));
             connection.commit();
         }
         return result;

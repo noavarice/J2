@@ -105,10 +105,10 @@ public class InteractionManager {
             }
 
             case DELETE: {
-                String[] pks = matcher.group(2).split(",");
+                String[] ids = matcher.group(2).split(",");
                 boolean result = false;
-                for (int i = 0; i < pks.length; ++i) {
-                    result = result || controller.delete(Integer.parseInt(pks[i].trim()));
+                for (String id : ids) {
+                    result = controller.delete(Integer.parseInt(id.trim())) || result;
                 }
                 return result;
             }
