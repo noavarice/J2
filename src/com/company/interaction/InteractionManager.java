@@ -1,6 +1,6 @@
 package com.company.interaction;
 
-import com.company.controllers.IController;
+import com.company.controllers.AbstractController;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -76,7 +76,7 @@ public class InteractionManager {
         return null;
     }
 
-    public static boolean execute(IController controller, String userInput) throws SQLException, IOException {
+    public static boolean execute(AbstractController controller, String userInput) throws SQLException, IOException {
         Matcher matcher = getMatcherFromInput(userInput);
         if (matcher == null) {
             return false;

@@ -1,16 +1,13 @@
 package com.company.controllers;
 
 import com.company.loader.ProductLoader;
-import com.company.models.Product;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 import java.io.*;
 import java.sql.*;
 import java.util.*;
 
-public class DatabaseController implements IController {
-    private Hashtable<Integer, Product> productMap;
-
+public class DatabaseController extends AbstractController {
     private Connection connection;
 
     private PreparedStatement deleteStmt;
@@ -73,13 +70,14 @@ public class DatabaseController implements IController {
         return result;
     }
 
-    public boolean update(int id, Properties props) throws SQLException {
+    public boolean update(int id, Properties props) throws
+            SQLException
+    {
         selectSingleItemStmt.setInt(1, id);
         ResultSet set = selectSingleItemStmt.executeQuery();
         if (!set.next()) {
             return false;
         }
-        Product temp = productMap.get(new Integer(id));
         for (String columnName : props.stringPropertyNames()) {
             if (set.getBytes(columnName) == null) {
                 connection.rollback();
