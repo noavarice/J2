@@ -53,8 +53,8 @@ public class DatabaseController implements IController {
         Statement s = connection.createStatement();
         boolean result = s.executeUpdate(query) != 0;
         if (result) {
-            connection.commit();
             productList.add(ProductLoader.getProductFromProperties(props));
+            connection.commit();
         }
         return result;
     }
