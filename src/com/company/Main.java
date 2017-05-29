@@ -21,7 +21,7 @@ public class Main {
         DatabaseController c = new DatabaseController("/home/alexrazinkov/Projects/Java/conn");
         String input = reader.readLine();
         while (!input.isEmpty()) {
-            System.out.println(InteractionManager.execute(c, input) ? "True" : "False");
+            System.out.println(InteractionManager.execute(c, input) ? "Command succeded" : "Command failed");
             input = reader.readLine();
         }
     }
