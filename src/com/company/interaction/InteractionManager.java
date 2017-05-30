@@ -1,7 +1,7 @@
 package com.company.interaction;
 
 import com.company.controllers.AbstractController;
-import com.company.controllers.DatabaseController;
+import com.company.controllers.FileController;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -169,7 +169,7 @@ public class InteractionManager {
             SQLException
     {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        DatabaseController c = new DatabaseController("/home/alexrazinkov/Projects/Java/conn");
+        FileController c = new FileController("/home/alexrazinkov/Projects/Java/products.dat");
         String input = reader.readLine();
         while (!input.isEmpty()) {
             switch (execute(c, input)) {

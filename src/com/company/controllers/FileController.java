@@ -1,15 +1,21 @@
 package com.company.controllers;
 
+import com.company.loader.FileLoader;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 public class FileController extends AbstractController
 {
-    public FileController(String filePath)
+    public FileController(String filePath) throws
+            IOException
     {
         super(filePath);
+        productMap = FileLoader.load(filePath);
     }
 
     @Override
@@ -36,6 +42,14 @@ public class FileController extends AbstractController
             SQLException,
             IOException
     {
+        List<Integer> keys = Collections.list(productMap.keys());
+        Collections.sort(keys);
+        for (Integer key : keys) {
+            out.write(String.valueOf(key).getBytes());
+            out.write(": ".getBytes());
+            out.write(productMap.get(key).toString().getBytes());
+            out.write('\n');
+        }
     }
 
     @Override
