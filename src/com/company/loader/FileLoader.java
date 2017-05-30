@@ -2,7 +2,7 @@ package com.company.loader;
 
 import com.company.models.*;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -43,20 +43,29 @@ public class FileLoader
             IOException
     {
         Hashtable<Integer, Product> result = new Hashtable<>();
-        try (Stream<String> stream = Files.lines(Paths.get(filePath))) {
-            stream.forEach(line -> {
-                ArrayList<String> parts = new ArrayList<String>(Arrays.asList(line.split(",")));
-                int id = Integer.parseInt(parts.get(0));
-                parts.remove(0);
-                String productType = parts.get(0);
-                parts.remove(0);
-                result.put(new Integer(id), nameToProduct.get(productType).apply(parts));
-            });
+        try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
+            try (ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
+                int size = objectInputStream.readInt();
+                for (int i = 1; i <= size; ++i) {
+                    result.put(new Integer(i), (Product)(objectInputStream.readObject()));
+                }
+            } catch (ClassNotFoundException e) {
+                return null;
+            }
         }
         return result;
     }
 
-    public static void save(String filePath, Hashtable<Integer, Product> products)
+    public static void save(String filePath, Hashtable<Integer, Product> products) throws
+            IOException
     {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(filePath)) {
+            try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
+                objectOutputStream.writeInt(products.size());
+                for (Integer key : products.keySet()) {
+                    objectOutputStream.writeObject(products.get(key));
+                }
+            }
+        }
     }
 }

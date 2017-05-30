@@ -1,8 +1,9 @@
 package com.company.models;
 
+import java.io.Serializable;
 import java.util.zip.DataFormatException;
 
-public abstract class Product {
+public abstract class Product implements Serializable {
     protected double price;
 
     public Product(double price)
