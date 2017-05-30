@@ -8,13 +8,22 @@ import com.company.models.Product;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.Hashtable;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.zip.DataFormatException;
 
 public abstract class AbstractController {
+    protected int maxId;
+
+    protected LinkedList<String> transactions;
+
     protected Hashtable<Integer, Product> productMap;
+
+    protected final String[][] allowedPropertySets = new String[][] {
+            new String[] {"price", "fattiness", "brand"},
+            new String[] {"price", "flour_type"},
+            new String[] {"price", "meat_type"}
+    };
 
     private static final Hashtable<String, BiConsumer<Product, String>> propertyToUpdater =
             new Hashtable<String, BiConsumer<Product, String>>() {
@@ -47,7 +56,7 @@ public abstract class AbstractController {
         }
     }
 
-    public abstract boolean insert(Properties props) throws SQLException;
+    public abstract void insert(Properties props) throws SQLException;
 
     public abstract boolean delete(int id) throws SQLException;
 

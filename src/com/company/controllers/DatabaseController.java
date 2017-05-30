@@ -1,97 +1,67 @@
 package com.company.controllers;
 
 import com.company.loader.ProductLoader;
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 import java.io.*;
-import java.sql.*;
+import java.sql.SQLException;
 import java.util.*;
 
 public class DatabaseController extends AbstractController {
-    private Connection connection;
-
-    private PreparedStatement deleteStmt;
-
-    private PreparedStatement selectSingleItemStmt;
-
     public DatabaseController(String filePath) throws
-            SQLException,
-            IOException
+            IOException,
+            SQLException
     {
-        Properties props = new Properties();
-        props.load(new FileInputStream(new File(filePath)));
-        MysqlDataSource ds = new MysqlDataSource();
-        ds.setServerName("localhost");
-        ds.setDatabaseName("shop");
-        ds.setUser(props.getProperty("username"));
-        ds.setPassword(props.getProperty("password"));
-        connection = ds.getConnection();
-        connection.setAutoCommit(false);
-        deleteStmt = connection.prepareStatement("DELETE FROM products WHERE id = ?;");
-        selectSingleItemStmt = connection.prepareStatement("SELECT * FROM products WHERE id = ?;");
-        productMap = ProductLoader.loadFromDatabase(connection);
+        productMap = ProductLoader.loadFromDatabase(filePath);
+        List<Integer> keys = Collections.list(productMap.keys());
+        maxId = keys.isEmpty() ? 0 : Collections.max(keys);
+        transactions = new LinkedList<>();
     }
 
-    public boolean insert(Properties props) throws
-            SQLException
+    public void insert(Properties props)
     {
         StringBuilder columnNames = new StringBuilder();
         StringBuilder columnValues = new StringBuilder();
+        columnNames.append("id,");
+        columnValues.append(++maxId);
         for (String columnName : props.stringPropertyNames()) {
             columnNames.append(columnName).append(",");
             columnValues.append(props.getProperty(columnName)).append(",");
         }
         columnNames.deleteCharAt(columnNames.length() - 1);
         columnValues.deleteCharAt(columnValues.length() - 1);
-        String query = "INSERT INTO products (" + columnNames.toString() + ") VALUES (" + columnValues.toString() +");";
-        Statement s = connection.createStatement();
-        boolean result = s.executeUpdate(query, Statement.RETURN_GENERATED_KEYS) != 0;
-        if (result) {
-            ResultSet rs = s.getGeneratedKeys();
-            rs.next();
-            productMap.put(rs.getInt(1), ProductLoader.getProductFromProperties(props));
-            connection.commit();
-        }
-        return result;
+        transactions.add("INSERT INTO products (" + columnNames.toString() + ") VALUES (" + columnValues.toString() +");");
+        productMap.put(maxId, ProductLoader.getProductFromProperties(props));
     }
 
-    public boolean delete(int id) throws
-            SQLException
+    public boolean delete(int id)
     {
-        deleteStmt.setInt(1, id);
-        boolean result = deleteStmt.executeUpdate() != 0;
-        if (result) {
-            productMap.remove(new Integer(id));
-            connection.commit();
-        }
-        return result;
+        transactions.add("DELETE FROM products WHERE id = " + String.valueOf(id));
+        return productMap.keySet().contains(new Integer(id));
     }
 
-    public boolean update(int id, Properties props) throws
-            SQLException
+    public boolean update(int id, Properties props)
     {
-        selectSingleItemStmt.setInt(1, id);
-        ResultSet set = selectSingleItemStmt.executeQuery();
-        if (!set.next()) {
+        if (!productMap.keySet().contains(new Integer(id))) {
             return false;
         }
-        for (String columnName : props.stringPropertyNames()) {
-            if (set.getBytes(columnName) == null) {
-                connection.rollback();
-                return false;
+        Set<String> keys = props.stringPropertyNames();
+        for (String[] allowedSet : allowedPropertySets) {
+            if (!keys.containsAll(Arrays.asList(allowedSet))) {
+                continue;
             }
-            String value = props.getProperty(columnName);
-            Statement s = connection.createStatement();
-            String query = "UPDATE products SET " + columnName + " = " + value + " WHERE id = " + String.valueOf(id);
-            s.executeUpdate(query);
+            updateProduct(productMap.get(new Integer((id))), props);
+            String query = "UPDATE products SET ";
+            for (String propName : props.stringPropertyNames()) {
+                query += propName + " = " + props.getProperty(propName);
+            }
+            query += " WHERE id = " + String.valueOf(id);
+            transactions.add(query);
+            return true;
         }
-        updateProduct(productMap.get(new Integer((id))), props);
-        connection.commit();
-        return true;
+        return false;
     }
 
     public void show(OutputStream out) throws
-            SQLException,
             IOException
     {
         List<Integer> keys = Collections.list(productMap.keys());

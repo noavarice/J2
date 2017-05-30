@@ -112,7 +112,8 @@ public class InteractionManager {
                 if (props.stringPropertyNames().contains("fattiness") && Double.parseDouble(props.getProperty("fattiness")) == 0) {
                     return CommandResult.FAILED;
                 }
-                return controller.insert(props) ? CommandResult.SUCCEEDED : CommandResult.FAILED;
+                controller.insert(props) ;
+                return CommandResult.SUCCEEDED;
             }
 
             case UPDATE: {

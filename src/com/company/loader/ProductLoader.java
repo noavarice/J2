@@ -4,7 +4,12 @@ import com.company.models.Bread;
 import com.company.models.Meat;
 import com.company.models.Milk;
 import com.company.models.Product;
+import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.*;
 import java.util.Hashtable;
 import java.util.Properties;
@@ -24,11 +29,20 @@ public class ProductLoader {
         }
     };
 
-    public static Hashtable<Integer, Product> loadFromDatabase(Connection databaseConnection) throws
-            SQLException
+    public static Hashtable<Integer, Product> loadFromDatabase(String connectionPropsFilePath) throws
+            SQLException,
+            IOException
     {
+        Properties props = new Properties();
+        props.load(new FileInputStream(new File(connectionPropsFilePath)));
+        MysqlDataSource ds = new MysqlDataSource();
+        ds.setServerName("localhost");
+        ds.setDatabaseName("shop");
+        ds.setUser(props.getProperty("username"));
+        ds.setPassword(props.getProperty("password"));
+        Connection connection = ds.getConnection();
+        Statement s = connection.createStatement();
         Hashtable<Integer, Product> result = new Hashtable<>();
-        Statement s = databaseConnection.createStatement();
         ResultSet rs = s.executeQuery("SELECT * FROM products");
         while (rs.next()) {
             Product temp = null;
