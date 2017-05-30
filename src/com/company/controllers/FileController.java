@@ -47,6 +47,9 @@ public class FileController extends AbstractController
     public boolean update(int id, Properties props) throws
             SQLException
     {
+        if (!productMap.keySet().contains(new Integer(id))) {
+            return false;
+        }
         Set<String> keys = props.stringPropertyNames();
         for (String[] allowedSet : allowedPropertySets) {
             Set<String> temp = new HashSet<>(Arrays.asList(allowedSet));
