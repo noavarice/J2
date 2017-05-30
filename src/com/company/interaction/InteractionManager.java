@@ -63,7 +63,8 @@ public class InteractionManager {
                     SET_BRAND + ")\\s*"),
             Pattern.compile("\\s*(insert)\\s+(bread)\\s+(" + SET_PRICE + "\\s*,\\s*" + SET_FLOUR_TYPE + ")\\s*"),
             Pattern.compile("\\s*(insert)\\s+(meat)\\s+(" + SET_PRICE + "\\s*,\\s*" + SET_MEAT_TYPE + ")\\s*"),
-            Pattern.compile("\\s*(delete)\\s+(" + PRIMARY_KEYS + ")\\s*"),
+            Pattern.compile("\\s*(delete)\\s+()(" + PRIMARY_KEYS + ")\\s*"),
+            Pattern.compile("\\s*(delete)\\s+(-i)\\s+(" + PRIMARY_KEY + "\\s*-\\s*" + PRIMARY_KEY + ")\\s*"),
             Pattern.compile("\\s*(update)\\s+id" + ASSIGNMENT_PATTERN + "(" + PRIMARY_KEY + ")\\s+(" + SET_COLUMN +
                     "(\\s*,\\s*" + SET_COLUMN + ")*)\\s*"),
             Pattern.compile("\\s*(show)\\s*"),
@@ -137,13 +138,26 @@ public class InteractionManager {
             }
 
             case DELETE: {
-                String[] ids = matcher.group(2).split(",");
-                boolean result = false;
-                for (String id : ids) {
-                    result = controller.delete(Integer.parseInt(id.trim())) || result;
+                if (!matcher.group(2).isEmpty()) {
+                    String[] interval = matcher.group(3).split("-");
+                    int start = Integer.parseInt(interval[0].trim());
+                    int end = Integer.parseInt(interval[1].trim());
+                    if (start > end || start == 0) {
+                        return CommandResult.FAILED;
+                    }
+                    for (int i = start; i <= end; ++i) {
+                        controller.delete(i);
+                    }
+                } else {
+                    boolean result = false;
+                    String[] ids = matcher.group(3).split(",");
+                    for (String id : ids) {
+                        result = controller.delete(Integer.parseInt(id.trim())) || result;
+                    }
+                    return result ? CommandResult.SUCCEEDED : CommandResult.FAILED;
                 }
-                return result ? CommandResult.SUCCEEDED : CommandResult.FAILED;
             }
+            break;
 
             case SHOW: {
                 controller.show(new PrintStream(System.out));
