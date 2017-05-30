@@ -14,8 +14,6 @@ public abstract class AbstractController {
 
     protected int maxId;
 
-    protected LinkedList<String> transactions;
-
     protected Hashtable<Integer, Product> productMap;
 
     protected final String[][] allowedPropertySets = new String[][] {
@@ -94,7 +92,7 @@ public abstract class AbstractController {
         this.filePath = filePath;
     }
 
-    public abstract void insert(Properties props) throws SQLException;
+    public abstract boolean insert(Properties props) throws SQLException;
 
     public abstract boolean delete(int id) throws SQLException;
 

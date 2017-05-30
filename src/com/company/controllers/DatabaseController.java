@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class DatabaseController extends AbstractController {
+    private LinkedList<String> transactions;
+
     public DatabaseController(String filePath) throws
             IOException,
             SQLException
@@ -20,7 +22,7 @@ public class DatabaseController extends AbstractController {
     }
 
     @Override
-    public void insert(Properties props)
+    public boolean insert(Properties props)
     {
         StringBuilder columnNames = new StringBuilder();
         StringBuilder columnValues = new StringBuilder();
@@ -35,6 +37,7 @@ public class DatabaseController extends AbstractController {
         String query = "INSERT INTO products (" + columnNames.toString() + ") VALUES (" + columnValues.toString() +");";
         transactions.add(query);
         productMap.put(maxId, getProductFromProperties(props));
+        return true;
     }
 
     @Override

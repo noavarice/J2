@@ -5,9 +5,7 @@ import com.company.loader.FileLoader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class FileController extends AbstractController
 {
@@ -19,8 +17,18 @@ public class FileController extends AbstractController
     }
 
     @Override
-    public void insert(Properties props) throws SQLException
+    public boolean insert(Properties props) throws SQLException
     {
+        Set<String> keys = props.stringPropertyNames();
+        for (String[] allowedSet : allowedPropertySets) {
+            Set<String> temp = new HashSet<>(Arrays.asList(allowedSet));
+            temp.add("product_name");
+            if (temp == keys) {
+                productMap.put(new Integer(String.valueOf(++maxId)), getProductFromProperties(props));
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
