@@ -24,20 +24,28 @@ public class DatabaseController extends AbstractController {
     @Override
     public boolean insert(Properties props)
     {
-        StringBuilder columnNames = new StringBuilder();
-        StringBuilder columnValues = new StringBuilder();
-        columnNames.append("id,");
-        columnValues.append(++maxId).append(",");
-        for (String columnName : props.stringPropertyNames()) {
-            columnNames.append(columnName).append(",");
-            columnValues.append(props.getProperty(columnName)).append(",");
+        Set<String> keys = props.stringPropertyNames();
+        for (String[] allowedSet : allowedPropertySets) {
+            Set<String> temp = new HashSet<>(Arrays.asList(allowedSet));
+            temp.add("product_name");
+            if (temp.containsAll(keys)) {
+                StringBuilder columnNames = new StringBuilder();
+                StringBuilder columnValues = new StringBuilder();
+                columnNames.append("id,");
+                columnValues.append(++maxId).append(",");
+                for (String columnName : props.stringPropertyNames()) {
+                    columnNames.append(columnName).append(",");
+                    columnValues.append(props.getProperty(columnName)).append(",");
+                }
+                columnNames.deleteCharAt(columnNames.length() - 1);
+                columnValues.deleteCharAt(columnValues.length() - 1);
+                String query = "INSERT INTO products (" + columnNames.toString() + ") VALUES (" + columnValues.toString() +");";
+                transactions.add(query);
+                productMap.put(maxId, getProductFromProperties(props));
+                return true;
+            }
         }
-        columnNames.deleteCharAt(columnNames.length() - 1);
-        columnValues.deleteCharAt(columnValues.length() - 1);
-        String query = "INSERT INTO products (" + columnNames.toString() + ") VALUES (" + columnValues.toString() +");";
-        transactions.add(query);
-        productMap.put(maxId, getProductFromProperties(props));
-        return true;
+        return false;
     }
 
     @Override
