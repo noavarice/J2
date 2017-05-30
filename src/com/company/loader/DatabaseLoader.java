@@ -7,11 +7,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Properties;
 
-public class ProductLoader {
+public class DatabaseLoader {
     private static final Hashtable<String, ProductType> nameToType = new Hashtable<String, ProductType>() {
         {
             put("bread", ProductType.Bread);
@@ -20,9 +24,9 @@ public class ProductLoader {
         }
     };
 
-    public static Hashtable<Integer, Product> loadFromDatabase(String connectionPropsFilePath) throws
-            SQLException,
-            IOException
+    private static Connection getConnection(String connectionPropsFilePath) throws
+            IOException,
+            SQLException
     {
         Properties props = new Properties();
         props.load(new FileInputStream(new File(connectionPropsFilePath)));
@@ -31,10 +35,18 @@ public class ProductLoader {
         ds.setDatabaseName("shop");
         ds.setUser(props.getProperty("username"));
         ds.setPassword(props.getProperty("password"));
-        Connection connection = ds.getConnection();
+        return ds.getConnection();
+    }
+
+    public static Hashtable<Integer, Product> load(String connectionPropsFilePath) throws
+            IOException,
+            SQLException
+    {
+        Connection connection = getConnection(connectionPropsFilePath);
         Statement s = connection.createStatement();
         Hashtable<Integer, Product> result = new Hashtable<>();
         ResultSet rs = s.executeQuery("SELECT * FROM products");
+        s.close();
         while (rs.next()) {
             Product temp = null;
             int id = rs.getInt("id");
@@ -57,6 +69,21 @@ public class ProductLoader {
             }
             result.put(id, temp);
         }
+        rs.close();
+        connection.close();
         return result;
+    }
+
+    public static void save(String connectionPropsFilePath, Collection<String> transactions) throws
+            IOException,
+            SQLException
+    {
+        Connection connection = getConnection(connectionPropsFilePath);
+        Statement s = connection.createStatement();
+        for (String query : transactions) {
+            s.execute(query);
+        }
+        s.close();
+        connection.close();
     }
 }

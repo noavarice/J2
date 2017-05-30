@@ -1,8 +1,9 @@
 package com.company.controllers;
 
-import com.company.loader.ProductLoader;
+import com.company.loader.DatabaseLoader;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -11,7 +12,7 @@ public class DatabaseController extends AbstractController {
             IOException,
             SQLException
     {
-        productMap = ProductLoader.loadFromDatabase(filePath);
+        productMap = DatabaseLoader.load(filePath);
         List<Integer> keys = Collections.list(productMap.keys());
         maxId = keys.isEmpty() ? 0 : Collections.max(keys);
         transactions = new LinkedList<>();
