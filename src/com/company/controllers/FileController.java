@@ -53,7 +53,7 @@ public class FileController extends AbstractController
             if (!temp.containsAll(keys)) {
                 continue;
             }
-            updateProduct(productMap.get(new Integer(id)), props);
+            updateProduct(id, props);
             return true;
         }
         return false;

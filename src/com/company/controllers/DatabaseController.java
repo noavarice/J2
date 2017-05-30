@@ -71,7 +71,7 @@ public class DatabaseController extends AbstractController {
             if (!temp.containsAll(keys)) {
                 continue;
             }
-            updateProduct(productMap.get(new Integer((id))), props);
+            updateProduct(id, props);
             String query = "UPDATE products SET ";
             for (String propName : props.stringPropertyNames()) {
                 query += propName + " = " + props.getProperty(propName);

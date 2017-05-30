@@ -53,8 +53,9 @@ public abstract class AbstractController {
         }
     };
 
-    protected static void updateProduct(Product updatingProduct, Properties props)
+    protected void updateProduct(int id, Properties props)
     {
+        Product updatingProduct = productMap.get(new Integer(id));
         for (String key : props.stringPropertyNames()) {
             BiConsumer<Product, String> updater = propertyToUpdater.get(key);
             updater.accept(updatingProduct, props.getProperty(key));
