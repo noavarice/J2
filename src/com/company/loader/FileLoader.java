@@ -45,9 +45,16 @@ public class FileLoader
         Hashtable<Integer, Product> result = new Hashtable<>();
         try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
             try (ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
-                int size = objectInputStream.readInt();
-                for (int i = 1; i <= size; ++i) {
-                    result.put(new Integer(i), (Product)(objectInputStream.readObject()));
+                try {
+                    int size = objectInputStream.readInt();
+                    for (int i = 1; i <= size; ++i) {
+                        result.put(new Integer(i), (Product)(objectInputStream.readObject()));
+                    }
+                } catch (EOFException e) {
+                    return result;
+                } finally {
+                    objectInputStream.close();
+                    fileInputStream.close();
                 }
             } catch (ClassNotFoundException e) {
                 return null;
