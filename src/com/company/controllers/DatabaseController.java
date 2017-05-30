@@ -19,6 +19,7 @@ public class DatabaseController extends AbstractController {
         transactions = new LinkedList<>();
     }
 
+    @Override
     public void insert(Properties props)
     {
         StringBuilder columnNames = new StringBuilder();
@@ -36,6 +37,7 @@ public class DatabaseController extends AbstractController {
         productMap.put(maxId, getProductFromProperties(props));
     }
 
+    @Override
     public boolean delete(int id)
     {
         transactions.add("DELETE FROM products WHERE id = " + String.valueOf(id));
@@ -46,6 +48,7 @@ public class DatabaseController extends AbstractController {
         return result;
     }
 
+    @Override
     public boolean update(int id, Properties props)
     {
         if (!productMap.keySet().contains(new Integer(id))) {
@@ -69,6 +72,7 @@ public class DatabaseController extends AbstractController {
         return false;
     }
 
+    @Override
     public void show(OutputStream out) throws
             IOException
     {
@@ -82,6 +86,7 @@ public class DatabaseController extends AbstractController {
         }
     }
 
+    @Override
     public void save() throws
             IOException,
             SQLException
