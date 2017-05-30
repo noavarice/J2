@@ -10,6 +10,8 @@ import java.util.function.BiConsumer;
 import java.util.zip.DataFormatException;
 
 public abstract class AbstractController {
+    protected String filePath;
+
     protected int maxId;
 
     protected LinkedList<String> transactions;
@@ -87,6 +89,11 @@ public abstract class AbstractController {
         return result;
     }
 
+    public AbstractController(String filePath)
+    {
+        this.filePath = filePath;
+    }
+
     public abstract void insert(Properties props) throws SQLException;
 
     public abstract boolean delete(int id) throws SQLException;
@@ -94,4 +101,6 @@ public abstract class AbstractController {
     public abstract boolean update(int id, Properties props) throws SQLException;
 
     public abstract void show(OutputStream out) throws SQLException, IOException;
+
+    public abstract void save() throws IOException, SQLException;
 }

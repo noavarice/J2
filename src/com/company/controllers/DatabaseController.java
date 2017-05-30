@@ -12,6 +12,7 @@ public class DatabaseController extends AbstractController {
             IOException,
             SQLException
     {
+        super(filePath);
         productMap = DatabaseLoader.load(filePath);
         List<Integer> keys = Collections.list(productMap.keys());
         maxId = keys.isEmpty() ? 0 : Collections.max(keys);
@@ -23,21 +24,26 @@ public class DatabaseController extends AbstractController {
         StringBuilder columnNames = new StringBuilder();
         StringBuilder columnValues = new StringBuilder();
         columnNames.append("id,");
-        columnValues.append(++maxId);
+        columnValues.append(++maxId).append(",");
         for (String columnName : props.stringPropertyNames()) {
             columnNames.append(columnName).append(",");
             columnValues.append(props.getProperty(columnName)).append(",");
         }
         columnNames.deleteCharAt(columnNames.length() - 1);
         columnValues.deleteCharAt(columnValues.length() - 1);
-        transactions.add("INSERT INTO products (" + columnNames.toString() + ") VALUES (" + columnValues.toString() +");");
+        String query = "INSERT INTO products (" + columnNames.toString() + ") VALUES (" + columnValues.toString() +");";
+        transactions.add(query);
         productMap.put(maxId, getProductFromProperties(props));
     }
 
     public boolean delete(int id)
     {
         transactions.add("DELETE FROM products WHERE id = " + String.valueOf(id));
-        return productMap.keySet().contains(new Integer(id));
+        boolean result = productMap.keySet().contains(new Integer(id));
+        if (result) {
+            productMap.remove(new Integer(id));
+        }
+        return result;
     }
 
     public boolean update(int id, Properties props)
@@ -47,7 +53,8 @@ public class DatabaseController extends AbstractController {
         }
         Set<String> keys = props.stringPropertyNames();
         for (String[] allowedSet : allowedPropertySets) {
-            if (!keys.containsAll(Arrays.asList(allowedSet))) {
+            Set<String> temp = new HashSet<>(Arrays.asList(allowedSet));
+            if (!temp.containsAll(keys)) {
                 continue;
             }
             updateProduct(productMap.get(new Integer((id))), props);
@@ -72,6 +79,16 @@ public class DatabaseController extends AbstractController {
             out.write(": ".getBytes());
             out.write(productMap.get(key).toString().getBytes());
             out.write('\n');
+        }
+    }
+
+    public void save() throws
+            IOException,
+            SQLException
+    {
+        if (!transactions.isEmpty()) {
+            DatabaseLoader.save(filePath, transactions);
+            transactions.clear();
         }
     }
 }

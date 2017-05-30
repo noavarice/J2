@@ -19,6 +19,7 @@ enum CommandType {
     DELETE,
     UPDATE,
     SHOW,
+    SAVE,
     EXIT
 }
 
@@ -66,6 +67,7 @@ public class InteractionManager {
             Pattern.compile("\\s*(update)\\s+id" + ASSIGNMENT_PATTERN + "(" + PRIMARY_KEY + ")\\s+(" + SET_COLUMN +
                     "(\\s*,\\s*" + SET_COLUMN + ")*)\\s*"),
             Pattern.compile("\\s*(show)\\s*"),
+            Pattern.compile(("\\s*(save)\\s*")),
             Pattern.compile(("\\s*(exit)\\s*")),
     };
 
@@ -75,6 +77,7 @@ public class InteractionManager {
             put("delete", CommandType.DELETE);
             put("update", CommandType.UPDATE);
             put("show", CommandType.SHOW);
+            put("save", CommandType.SAVE);
             put("exit", CommandType.EXIT);
         }
     };
@@ -148,7 +151,13 @@ public class InteractionManager {
             }
             break;
 
+            case SAVE: {
+                controller.save();
+            }
+            break;
+
             case EXIT: {
+                controller.save();
                 return CommandResult.FINISHED;
             }
         }

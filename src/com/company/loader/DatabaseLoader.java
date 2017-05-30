@@ -46,7 +46,6 @@ public class DatabaseLoader {
         Statement s = connection.createStatement();
         Hashtable<Integer, Product> result = new Hashtable<>();
         ResultSet rs = s.executeQuery("SELECT * FROM products");
-        s.close();
         while (rs.next()) {
             Product temp = null;
             int id = rs.getInt("id");
@@ -69,6 +68,7 @@ public class DatabaseLoader {
             }
             result.put(id, temp);
         }
+        s.close();
         rs.close();
         connection.close();
         return result;
