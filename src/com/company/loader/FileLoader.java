@@ -56,7 +56,7 @@ public class FileLoader
         return result;
     }
 
-    public static void save(String filePath)
+    public static void save(String filePath, Hashtable<Integer, Product> products)
     {
     }
 }
