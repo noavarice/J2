@@ -14,6 +14,7 @@ public class FileController extends AbstractController
     {
         super(filePath);
         productMap = FileLoader.load(filePath);
+        maxId = productMap.isEmpty() ? 1 : Collections.max(productMap.keySet());
     }
 
     @Override
@@ -23,7 +24,7 @@ public class FileController extends AbstractController
         for (String[] allowedSet : allowedPropertySets) {
             Set<String> temp = new HashSet<>(Arrays.asList(allowedSet));
             temp.add("product_name");
-            if (temp == keys) {
+            if (temp.containsAll(keys)) {
                 productMap.put(new Integer(String.valueOf(++maxId)), getProductFromProperties(props));
                 return true;
             }
