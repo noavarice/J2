@@ -36,13 +36,26 @@ public class FileController extends AbstractController
     public boolean delete(int id) throws
             SQLException
     {
-        return false;
+        boolean result = productMap.keySet().contains(new Integer(id));
+        if (result) {
+            productMap.remove(new Integer(id));
+        }
+        return result;
     }
 
     @Override
     public boolean update(int id, Properties props) throws
             SQLException
     {
+        Set<String> keys = props.stringPropertyNames();
+        for (String[] allowedSet : allowedPropertySets) {
+            Set<String> temp = new HashSet<>(Arrays.asList(allowedSet));
+            if (!temp.containsAll(keys)) {
+                continue;
+            }
+            updateProduct(productMap.get(new Integer(id)), props);
+            return true;
+        }
         return false;
     }
 
