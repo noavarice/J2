@@ -57,7 +57,9 @@ public class FileLoader
                     fileInputStream.close();
                 }
             } catch (ClassNotFoundException e) {
-                return null;
+                return result;
+            } catch (StreamCorruptedException e) {
+                return result;
             }
         }
         return result;
@@ -69,7 +71,9 @@ public class FileLoader
         try (FileOutputStream fileOutputStream = new FileOutputStream(filePath)) {
             try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
                 objectOutputStream.writeInt(products.size());
-                for (Integer key : products.keySet()) {
+                List<Integer> keys = Collections.list(products.keys());
+                Collections.sort(keys);
+                for (Integer key : keys) {
                     objectOutputStream.writeObject(products.get(key));
                 }
             }
