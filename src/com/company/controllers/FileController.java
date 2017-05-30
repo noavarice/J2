@@ -14,7 +14,7 @@ public class FileController extends AbstractController
     {
         super(filePath);
         productMap = FileLoader.load(filePath);
-        maxId = productMap.isEmpty() ? 1 : Collections.max(productMap.keySet());
+        maxId = productMap.isEmpty() ? 0 : Collections.max(productMap.keySet());
     }
 
     @Override
