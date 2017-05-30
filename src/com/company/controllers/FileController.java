@@ -79,5 +79,6 @@ public class FileController extends AbstractController
             IOException,
             SQLException
     {
+        FileLoader.save(filePath);
     }
 }
