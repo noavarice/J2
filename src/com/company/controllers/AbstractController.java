@@ -1,9 +1,6 @@
 package com.company.controllers;
 
-import com.company.models.Bread;
-import com.company.models.Meat;
-import com.company.models.Milk;
-import com.company.models.Product;
+import com.company.models.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -23,6 +20,14 @@ public abstract class AbstractController {
             new String[] {"price", "fattiness", "brand"},
             new String[] {"price", "flour_type"},
             new String[] {"price", "meat_type"}
+    };
+
+    private static final Hashtable<String, ProductType> nameToType = new Hashtable<String, ProductType>() {
+        {
+            put("bread", ProductType.Bread);
+            put("meat", ProductType.Meat);
+            put("milk", ProductType.Milk);
+        }
     };
 
     private static final Hashtable<String, BiConsumer<Product, String>> propertyToUpdater =
@@ -54,6 +59,32 @@ public abstract class AbstractController {
             BiConsumer<Product, String> updater = propertyToUpdater.get(key);
             updater.accept(updatingProduct, props.getProperty(key));
         }
+    }
+
+    protected static Product getProductFromProperties(Properties props) {
+        Product result = null;
+        double price = Double.parseDouble(props.getProperty("price"));
+        StringBuilder productName = new StringBuilder(props.getProperty("product_name"));
+        productName.deleteCharAt(0);
+        productName.deleteCharAt(productName.length() - 1);
+        switch (nameToType.get(productName.toString())) {
+            case Bread: {
+                result = new Bread(price, props.getProperty("flour_type"));
+            }
+            break;
+
+            case Meat: {
+                result = new Meat(price, props.getProperty("meat_type"));
+            }
+            break;
+
+            case Milk: {
+                double fattiness = Double.parseDouble(props.getProperty("fattiness"));
+                result = new Milk(price, fattiness, props.getProperty("brand"));
+            }
+            break;
+        }
+        return result;
     }
 
     public abstract void insert(Properties props) throws SQLException;

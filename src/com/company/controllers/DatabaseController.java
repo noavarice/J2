@@ -30,7 +30,7 @@ public class DatabaseController extends AbstractController {
         columnNames.deleteCharAt(columnNames.length() - 1);
         columnValues.deleteCharAt(columnValues.length() - 1);
         transactions.add("INSERT INTO products (" + columnNames.toString() + ") VALUES (" + columnValues.toString() +");");
-        productMap.put(maxId, ProductLoader.getProductFromProperties(props));
+        productMap.put(maxId, getProductFromProperties(props));
     }
 
     public boolean delete(int id)

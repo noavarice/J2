@@ -1,9 +1,6 @@
 package com.company.loader;
 
-import com.company.models.Bread;
-import com.company.models.Meat;
-import com.company.models.Milk;
-import com.company.models.Product;
+import com.company.models.*;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 import java.io.File;
@@ -14,14 +11,8 @@ import java.sql.*;
 import java.util.Hashtable;
 import java.util.Properties;
 
-enum ProductType {
-    Bread,
-    Meat,
-    Milk
-}
-
 public class ProductLoader {
-    private static Hashtable<String, ProductType> nameToType = new Hashtable<String, ProductType>() {
+    private static final Hashtable<String, ProductType> nameToType = new Hashtable<String, ProductType>() {
         {
             put("bread", ProductType.Bread);
             put("meat", ProductType.Meat);
@@ -67,37 +58,5 @@ public class ProductLoader {
             result.put(id, temp);
         }
         return result;
-    }
-
-    public static Product getProductFromProperties(Properties props)
-    {
-        Product result = null;
-        double price = Double.parseDouble(props.getProperty("price"));
-        StringBuilder productName = new StringBuilder(props.getProperty("product_name"));
-        productName.deleteCharAt(0);
-        productName.deleteCharAt(productName.length() - 1);
-        switch (nameToType.get(productName.toString())) {
-            case Bread: {
-                result = new Bread(price, props.getProperty("flour_type"));
-            }
-            break;
-
-            case Meat: {
-                result = new Meat(price, props.getProperty("meat_type"));
-            }
-            break;
-
-            case Milk: {
-                double fattiness = Double.parseDouble(props.getProperty("fattiness"));
-                result = new Milk(price, fattiness, props.getProperty("brand"));
-            }
-            break;
-        }
-        return result;
-    }
-
-    public static Hashtable<Integer, Product> loadFromFile(String filePath)
-    {
-        return null;
     }
 }
