@@ -1,12 +1,13 @@
 package com.company.interaction;
 
 import com.company.controllers.AbstractController;
+import com.company.controllers.DatabaseController;
 import com.company.controllers.FileController;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Hashtable;
 import java.util.Properties;
@@ -15,6 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 enum CommandType {
+    LOAD,
     INSERT,
     DELETE,
     UPDATE,
@@ -26,13 +28,16 @@ enum CommandType {
 enum CommandResult {
     SUCCEEDED,
     FAILED,
-    FINISHED
+    CONTROLLER_IS_NOT_CHOSEN,
+    FINISHED,
 }
 
 public class InteractionManager {
     private static final String ASSIGNMENT_PATTERN = "\\s*=\\s*";
 
-    private static final String NOT_NULL_STRING_PATTERN = "\"[^\"]{1,50}?\"";
+    private static final String NOT_NULL_STRING_PATTERN = "\"[^\"]{1,50}\"";
+
+    private static final String FILE_NAME_PATTERN = "[^\"]+";
 
     private static final String PRICE_PATTERN = "(\\d{1,3}(\\.\\d{1,2})?)";
 
@@ -59,6 +64,8 @@ public class InteractionManager {
             SET_TYPE + ")|(" + SET_FLOUR_TYPE + ")|(" + SET_MEAT_TYPE + "))";
 
     private static final Pattern[] COMMAND_PATTERNS = {
+            Pattern.compile("\\s*(load)\\s+(file)" + ASSIGNMENT_PATTERN + "\"(" + FILE_NAME_PATTERN + ")\"\\s*"),
+            Pattern.compile("\\s*(load)\\s+(db)\\s*"),
             Pattern.compile("\\s*(insert)\\s+(milk)\\s+(" + SET_PRICE + "\\s*,\\s*" + SET_FATTINESS + "\\s*,\\s*" +
                     SET_BRAND + ")\\s*"),
             Pattern.compile("\\s*(insert)\\s+(bread)\\s+(" + SET_PRICE + "\\s*,\\s*" + SET_FLOUR_TYPE + ")\\s*"),
@@ -74,6 +81,7 @@ public class InteractionManager {
 
     private static final Hashtable<String, CommandType> nameToCommandType = new Hashtable<String, CommandType>() {
         {
+            put("load", CommandType.LOAD);
             put("insert", CommandType.INSERT);
             put("delete", CommandType.DELETE);
             put("update", CommandType.UPDATE);
@@ -82,6 +90,8 @@ public class InteractionManager {
             put("exit", CommandType.EXIT);
         }
     };
+
+    static AbstractController controller = null;
 
     private static Matcher getMatcherFromInput(String userInput) {
         for (int i = 0; i < COMMAND_PATTERNS.length; ++i) {
@@ -93,7 +103,7 @@ public class InteractionManager {
         return null;
     }
 
-    private static CommandResult execute(AbstractController controller, String userInput) throws
+    private static CommandResult execute(String userInput) throws
             SQLException,
             IOException
     {
@@ -102,7 +112,30 @@ public class InteractionManager {
             return CommandResult.FAILED;
         }
         switch (nameToCommandType.get(matcher.group(1))) {
+            case LOAD: {
+                String type = matcher.group(2);
+                if (type.equals("db")) {
+                    DatabaseController temp = new DatabaseController("/home/alexrazinkov/Projects/Java/conn");
+                    if (controller == null || !controller.getClass().isAssignableFrom(temp.getClass())) {
+                        controller = temp;
+                    }
+                } else {
+                    String filePath = matcher.group(3);
+                    Path path = Paths.get(filePath);
+                    if (Files.exists(path) && !Files.isDirectory(path)) {
+                        FileController temp = new FileController(filePath.toString());
+                        if (controller == null || !controller.getClass().isAssignableFrom(temp.getClass())) {
+                            controller = temp;
+                        }
+                    }
+                }
+            }
+            break;
+
             case INSERT: {
+                if (controller == null) {
+                    return CommandResult.CONTROLLER_IS_NOT_CHOSEN;
+                }
                 Properties props = new Properties();
                 props.setProperty("product_name", "\"" + matcher.group(2) + "\"");
                 String[] setValues = matcher.group(3).split(",");
@@ -120,6 +153,9 @@ public class InteractionManager {
             }
 
             case UPDATE: {
+                if (controller == null) {
+                    return CommandResult.CONTROLLER_IS_NOT_CHOSEN;
+                }
                 Properties props = new Properties();
                 int id = Integer.parseInt(matcher.group(2));
                 String[] setStmts = matcher.group(3).split(",");
@@ -138,6 +174,9 @@ public class InteractionManager {
             }
 
             case DELETE: {
+                if (controller == null) {
+                    return CommandResult.CONTROLLER_IS_NOT_CHOSEN;
+                }
                 if (!matcher.group(2).isEmpty()) {
                     String[] interval = matcher.group(3).split("-");
                     int start = Integer.parseInt(interval[0].trim());
@@ -160,16 +199,25 @@ public class InteractionManager {
             break;
 
             case SHOW: {
+                if (controller == null) {
+                    return CommandResult.CONTROLLER_IS_NOT_CHOSEN;
+                }
                 controller.show(new PrintStream(System.out));
             }
             break;
 
             case SAVE: {
+                if (controller == null) {
+                    return CommandResult.CONTROLLER_IS_NOT_CHOSEN;
+                }
                 controller.save();
             }
             break;
 
             case EXIT: {
+                if (controller == null) {
+                    return CommandResult.CONTROLLER_IS_NOT_CHOSEN;
+                }
                 controller.save();
                 return CommandResult.FINISHED;
             }
@@ -182,10 +230,9 @@ public class InteractionManager {
             SQLException
     {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        FileController c = new FileController("/home/alexrazinkov/Projects/Java/products.dat");
         String input = reader.readLine();
         while (!input.isEmpty()) {
-            switch (execute(c, input)) {
+            switch (execute(input)) {
                 case SUCCEEDED: {
                     System.out.println("Command succeded");
                 }
@@ -193,6 +240,11 @@ public class InteractionManager {
 
                 case FAILED: {
                     System.out.println("Command failed");
+                }
+                break;
+
+                case CONTROLLER_IS_NOT_CHOSEN: {
+                    System.out.println("Product managment type is not chosen");
                 }
                 break;
 
