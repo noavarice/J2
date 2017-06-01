@@ -22,6 +22,28 @@ public abstract class AbstractController {
             new String[] {"price", "meat_type"}
     };
 
+    protected static Comparator<Product> ascendingPriceComparator = (x, y) ->
+    {
+        if (x.getPrice() < y.getPrice()) {
+            return -1;
+        }
+        if (x.getPrice() > y.getPrice()) {
+            return 1;
+        }
+        return 0;
+    };
+
+    protected static final Comparator<Product> descendingPriceComparator = (x, y) ->
+    {
+        if (x.getPrice() < y.getPrice()) {
+            return 1;
+        }
+        if (x.getPrice() > y.getPrice()) {
+            return -1;
+        }
+        return 0;
+    };
+
     private static final Hashtable<String, ProductType> nameToType = new Hashtable<String, ProductType>() {
         {
             put("bread", ProductType.Bread);
@@ -99,7 +121,18 @@ public abstract class AbstractController {
 
     public abstract boolean update(int id, Properties props) throws SQLException;
 
-    public abstract void show(OutputStream out) throws SQLException, IOException;
+    public abstract void show(OutputStream out) throws IOException;
+
+    public void showSorted(OutputStream out, boolean ascending) throws
+            IOException
+    {
+        List<Product> products = new LinkedList<>(productMap.values());
+        Collections.sort(products, ascending ? ascendingPriceComparator : descendingPriceComparator);
+        for (Product p : products) {
+            out.write(p.toString().getBytes());
+            out.write('\n');
+        }
+    }
 
     public abstract void save() throws IOException, SQLException;
 }

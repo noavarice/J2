@@ -64,7 +64,6 @@ public class FileController extends AbstractController
 
     @Override
     public void show(OutputStream out) throws
-            SQLException,
             IOException
     {
         List<Integer> keys = Collections.list(productMap.keys());

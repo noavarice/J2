@@ -74,7 +74,7 @@ public class InteractionManager {
             Pattern.compile("\\s*(delete)\\s+(-i)\\s+(" + PRIMARY_KEY + "\\s*-\\s*" + PRIMARY_KEY + ")\\s*"),
             Pattern.compile("\\s*(update)\\s+id" + ASSIGNMENT_PATTERN + "(" + PRIMARY_KEY + ")\\s+(" + SET_COLUMN +
                     "(\\s*,\\s*" + SET_COLUMN + ")*)\\s*"),
-            Pattern.compile("\\s*(show)\\s*"),
+            Pattern.compile("\\s*(show)(\\s+sort\\s+\\b(asc|desc)\\b)?\\s*"),
             Pattern.compile(("\\s*(save)\\s*")),
             Pattern.compile(("\\s*(exit)\\s*")),
     };
@@ -202,7 +202,13 @@ public class InteractionManager {
                 if (controller == null) {
                     return CommandResult.CONTROLLER_IS_NOT_CHOSEN;
                 }
-                controller.show(new PrintStream(System.out));
+                String sortSection = matcher.group(2);
+                if (sortSection != null) {
+                    String[] str = sortSection.split(" ");
+                    controller.showSorted(new PrintStream(System.out), str[2].equals("asc"));
+                } else {
+                    controller.show(new PrintStream(System.out));
+                }
             }
             break;
 
@@ -231,8 +237,10 @@ public class InteractionManager {
     {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         String input = reader.readLine();
-        while (!input.isEmpty()) {
-            switch (execute(input)) {
+        CommandResult state = CommandResult.SUCCEEDED;
+        while (state != CommandResult.FINISHED) {
+            state = execute(input);
+            switch (state) {
                 case SUCCEEDED: {
                     System.out.println("Command succeded");
                 }
