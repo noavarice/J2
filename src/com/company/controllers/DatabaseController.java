@@ -98,13 +98,18 @@ public class DatabaseController extends AbstractController {
     }
 
     @Override
-    public void save() throws
-            IOException,
-            SQLException
+    public boolean save()
     {
         if (!transactions.isEmpty()) {
-            DatabaseLoader.save(filePath, transactions);
+            try {
+                DatabaseLoader.save(filePath, transactions);
+            } catch (SQLException e) {
+                return false;
+            } catch (IOException e) {
+                return false;
+            }
             transactions.clear();
         }
+        return true;
     }
 }

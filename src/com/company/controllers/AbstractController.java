@@ -4,7 +4,6 @@ import com.company.models.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.zip.DataFormatException;
@@ -115,11 +114,11 @@ public abstract class AbstractController {
         this.filePath = filePath;
     }
 
-    public abstract boolean insert(Properties props) throws SQLException;
+    public abstract boolean insert(Properties props);
 
-    public abstract boolean delete(int id) throws SQLException;
+    public abstract boolean delete(int id);
 
-    public abstract boolean update(int id, Properties props) throws SQLException;
+    public abstract boolean update(int id, Properties props);
 
     public abstract void show(OutputStream out) throws IOException;
 
@@ -134,5 +133,5 @@ public abstract class AbstractController {
         }
     }
 
-    public abstract void save() throws IOException, SQLException;
+    public abstract boolean save();
 }

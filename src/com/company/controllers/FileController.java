@@ -4,7 +4,6 @@ import com.company.loader.FileLoader;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.*;
 
 public class FileController extends AbstractController
@@ -18,7 +17,7 @@ public class FileController extends AbstractController
     }
 
     @Override
-    public boolean insert(Properties props) throws SQLException
+    public boolean insert(Properties props)
     {
         Set<String> keys = props.stringPropertyNames();
         for (String[] allowedSet : allowedPropertySets) {
@@ -33,8 +32,7 @@ public class FileController extends AbstractController
     }
 
     @Override
-    public boolean delete(int id) throws
-            SQLException
+    public boolean delete(int id)
     {
         boolean result = productMap.keySet().contains(new Integer(id));
         if (result) {
@@ -44,8 +42,7 @@ public class FileController extends AbstractController
     }
 
     @Override
-    public boolean update(int id, Properties props) throws
-            SQLException
+    public boolean update(int id, Properties props)
     {
         if (!productMap.keySet().contains(new Integer(id))) {
             return false;
@@ -77,10 +74,13 @@ public class FileController extends AbstractController
     }
 
     @Override
-    public void save() throws
-            IOException,
-            SQLException
+    public boolean save()
     {
-        FileLoader.save(filePath, productMap);
+        try {
+            FileLoader.save(filePath, productMap);
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
     }
 }

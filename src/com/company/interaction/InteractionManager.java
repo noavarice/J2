@@ -28,6 +28,7 @@ enum CommandType {
 enum CommandResult {
     SUCCEEDED,
     FAILED,
+    SAVING_FAILED,
     CONTROLLER_IS_NOT_CHOSEN,
     FINISHED,
 }
@@ -216,9 +217,8 @@ public class InteractionManager {
                 if (controller == null) {
                     return CommandResult.CONTROLLER_IS_NOT_CHOSEN;
                 }
-                controller.save();
+                return controller.save() ? CommandResult.SUCCEEDED : CommandResult.SAVING_FAILED;
             }
-            break;
 
             case EXIT: {
                 if (controller == null) {
@@ -251,8 +251,13 @@ public class InteractionManager {
                 }
                 break;
 
+                case SAVING_FAILED: {
+                    System.out.println("Saving to database or to file is failed");
+                }
+                break;
+
                 case CONTROLLER_IS_NOT_CHOSEN: {
-                    System.out.println("Product managment type is not chosen");
+                    System.out.println("Product management type is not chosen");
                 }
                 break;
 
