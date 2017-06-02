@@ -246,10 +246,9 @@ public class InteractionManager {
             }
 
             case EXIT: {
-                if (controller == null) {
-                    return CommandResult.CONTROLLER_IS_NOT_CHOSEN;
+                if (controller != null) {
+                    controller.save();
                 }
-                controller.save();
                 return CommandResult.FINISHED;
             }
         }

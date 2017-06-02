@@ -26,7 +26,7 @@ public class Meat extends Product {
     public String toString()
     {
         StringBuilder b = new StringBuilder();
-        b.append("Meat, price: ").append(price).append(", meat type: ").append(meatType);
+        b.append("Meat, price: ").append(price).append(", meat type: \"").append(meatType).append("\"");
         return b.toString();
     }
 
