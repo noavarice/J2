@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 import java.util.zip.DataFormatException;
 
 public abstract class AbstractController {
@@ -132,6 +133,19 @@ public abstract class AbstractController {
             out.write('\n');
         }
     }
+
+    public void filter(OutputStream out, BiPredicate<Product, Double> pred, double maxPrice) throws
+            IOException
+    {
+        List<Product> products = new LinkedList<>(productMap.values());
+        for (Product p : products) {
+            if (pred.test(p, maxPrice)) {
+                out.write(p.toString().getBytes());
+                out.write('\n');
+            }
+        }
+    }
+
 
     public abstract boolean save();
 }

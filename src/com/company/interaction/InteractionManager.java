@@ -3,6 +3,7 @@ package com.company.interaction;
 import com.company.controllers.AbstractController;
 import com.company.controllers.DatabaseController;
 import com.company.controllers.FileController;
+import com.company.models.Product;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -12,6 +13,7 @@ import java.sql.SQLException;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.BiPredicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,6 +23,7 @@ enum CommandType {
     DELETE,
     UPDATE,
     SHOW,
+    FILTER,
     SAVE,
     EXIT
 }
@@ -64,6 +67,16 @@ public class InteractionManager {
     private static final String SET_COLUMN = "((" + SET_PRICE + ")|(" + SET_BRAND + ")|(" + SET_FATTINESS + ")|(" +
             SET_TYPE + ")|(" + SET_FLOUR_TYPE + ")|(" + SET_MEAT_TYPE + "))";
 
+    private static final Hashtable<String, BiPredicate<Product, Double>> signToPredicate = new Hashtable<String, BiPredicate<Product, Double>>() {
+        {
+            put("<", (product, maxPrice) -> product.getPrice() < maxPrice);
+            put(">", (product, maxPrice) -> product.getPrice() > maxPrice);
+            put("<=", (product, maxPrice) -> product.getPrice() <= maxPrice);
+            put(">=", (product, maxPrice) -> product.getPrice() >= maxPrice);
+            put("==", (product, maxPrice) -> product.getPrice() >= maxPrice);
+        }
+    };
+
     private static final Pattern[] COMMAND_PATTERNS = {
             Pattern.compile("\\s*(load)\\s+(file)" + ASSIGNMENT_PATTERN + "\"(" + FILE_NAME_PATTERN + ")\"\\s*"),
             Pattern.compile("\\s*(load)\\s+(db)\\s*"),
@@ -76,6 +89,7 @@ public class InteractionManager {
             Pattern.compile("\\s*(update)\\s+id" + ASSIGNMENT_PATTERN + "(" + PRIMARY_KEY + ")\\s+(" + SET_COLUMN +
                     "(\\s*,\\s*" + SET_COLUMN + ")*)\\s*"),
             Pattern.compile("\\s*(show)(\\s+sort\\s+\\b(asc|desc)\\b)?\\s*"),
+            Pattern.compile("\\s*(filter)\\s+price\\s+(([<>]=?)|(=))\\s*(" + PRICE_PATTERN + ")\\s*"),
             Pattern.compile(("\\s*(save)\\s*")),
             Pattern.compile(("\\s*(exit)\\s*")),
     };
@@ -87,6 +101,7 @@ public class InteractionManager {
             put("delete", CommandType.DELETE);
             put("update", CommandType.UPDATE);
             put("show", CommandType.SHOW);
+            put("filter", CommandType.FILTER);
             put("save", CommandType.SAVE);
             put("exit", CommandType.EXIT);
         }
@@ -210,6 +225,16 @@ public class InteractionManager {
                 } else {
                     controller.show(new PrintStream(System.out));
                 }
+            }
+            break;
+
+            case FILTER: {
+                if (controller == null) {
+                    return CommandResult.CONTROLLER_IS_NOT_CHOSEN;
+                }
+                String sign = matcher.group(2);
+                Double newPrice = new Double(matcher.group(5));
+                controller.filter(new PrintStream(System.out), signToPredicate.get(sign), newPrice);
             }
             break;
 
