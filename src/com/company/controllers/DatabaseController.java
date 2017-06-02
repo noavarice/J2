@@ -103,16 +103,11 @@ public class DatabaseController extends AbstractController {
     @Override
     public boolean save()
     {
+        boolean result = true;
         if (!transactions.isEmpty()) {
-            try {
-                DatabaseLoader.save(filePath, transactions);
-            } catch (SQLException e) {
-                return false;
-            } catch (IOException e) {
-                return false;
-            }
+            result = DatabaseLoader.save(filePath, transactions);
             transactions.clear();
         }
-        return true;
+        return result;
     }
 }

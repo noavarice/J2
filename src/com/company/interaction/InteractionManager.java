@@ -90,7 +90,7 @@ public class InteractionManager {
                     "(\\s*,\\s*" + SET_COLUMN + ")*)\\s*"),
             Pattern.compile("\\s*(show)(\\s+sort\\s+\\b(asc|desc)\\b)?\\s*"),
             Pattern.compile("\\s*(filter)\\s+price\\s+(([<>]=?)|(=))\\s*(" + PRICE_PATTERN + ")\\s*"),
-            Pattern.compile(("\\s*(save)\\s*")),
+            Pattern.compile(("\\s*(save)(\\s+file" + ASSIGNMENT_PATTERN + "\"" + FILE_NAME_PATTERN + "\")?\\s*")),
             Pattern.compile(("\\s*(exit)\\s*")),
     };
 
@@ -241,6 +241,11 @@ public class InteractionManager {
             case SAVE: {
                 if (controller == null) {
                     return CommandResult.CONTROLLER_IS_NOT_CHOSEN;
+                }
+                String file = matcher.group(2);
+                if (file != null) {
+                    String filePath = file.split("\"")[1].trim();
+                    return controller.saveToFile(filePath) ? CommandResult.SUCCEEDED : CommandResult.FAILED;
                 }
                 return controller.save() ? CommandResult.SUCCEEDED : CommandResult.SAVING_FAILED;
             }

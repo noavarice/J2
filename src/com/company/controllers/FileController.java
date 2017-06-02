@@ -76,11 +76,6 @@ public class FileController extends AbstractController
     @Override
     public boolean save()
     {
-        try {
-            FileLoader.save(filePath, productMap);
-        } catch (IOException e) {
-            return false;
-        }
-        return true;
+        return FileLoader.save(filePath, productMap);
     }
 }

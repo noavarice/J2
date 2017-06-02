@@ -3,11 +3,7 @@ package com.company.loader;
 import com.company.models.*;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 public class FileLoader
 {
@@ -18,26 +14,6 @@ public class FileLoader
             put("milk", ProductType.Milk);
         }
     };
-
-    private static final Hashtable<String, Function<List<String>, Product>> nameToProduct =
-            new Hashtable<String, Function<List<String>, Product>>() {
-        {
-            put("bread", list -> {
-                double price = Double.parseDouble(list.get(0));
-                return new Bread(price, list.get(1));
-            });
-            put("meat", list -> {
-                double price = Double.parseDouble(list.get(0));
-                return new Meat(price, list.get(1));
-            });
-            put("milk", list -> {
-                double price = Double.parseDouble(list.get(0));
-                double fattiness = Double.parseDouble(list.get(1));
-                return new Milk(price, fattiness, list.get(2));
-            });
-        }
-    };
-
 
     public static Hashtable<Integer, Product> load(String filePath) throws
             IOException
@@ -65,8 +41,7 @@ public class FileLoader
         return result;
     }
 
-    public static void save(String filePath, Hashtable<Integer, Product> products) throws
-            IOException
+    public static boolean save(String filePath, Hashtable<Integer, Product> products)
     {
         try (FileOutputStream fileOutputStream = new FileOutputStream(filePath)) {
             try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
@@ -77,6 +52,9 @@ public class FileLoader
                     objectOutputStream.writeObject(products.get(key));
                 }
             }
+        } catch (IOException e) {
+            return false;
         }
+        return true;
     }
 }

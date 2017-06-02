@@ -5,7 +5,6 @@ import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -38,52 +37,61 @@ public class DatabaseLoader {
         return ds.getConnection();
     }
 
-    public static Hashtable<Integer, Product> load(String connectionPropsFilePath) throws
-            IOException,
-            SQLException
+    public static Hashtable<Integer, Product> load(String connectionPropsFilePath)
     {
-        Connection connection = getConnection(connectionPropsFilePath);
-        Statement s = connection.createStatement();
         Hashtable<Integer, Product> result = new Hashtable<>();
-        ResultSet rs = s.executeQuery("SELECT * FROM products");
-        while (rs.next()) {
-            Product temp = null;
-            int id = rs.getInt("id");
-            double price = rs.getDouble("price");
-            switch (nameToType.get(rs.getString("product_name"))) {
-                case Bread: {
-                    temp = new Bread(price, rs.getString("flour_type"));
-                }
-                break;
+        try {
+            Connection connection = getConnection(connectionPropsFilePath);
+            Statement s = connection.createStatement();
+            ResultSet rs = s.executeQuery("SELECT * FROM products");
+            while (rs.next()) {
+                Product temp = null;
+                int id = rs.getInt("id");
+                double price = rs.getDouble("price");
+                switch (nameToType.get(rs.getString("product_name"))) {
+                    case Bread: {
+                        temp = new Bread(price, rs.getString("flour_type"));
+                    }
+                    break;
 
-                case Meat: {
-                    temp = new Meat(price, rs.getString("meat_type"));
-                }
-                break;
+                    case Meat: {
+                        temp = new Meat(price, rs.getString("meat_type"));
+                    }
+                    break;
 
-                case Milk: {
-                    temp = new Milk(price, rs.getDouble("fattiness"), rs.getString("brand"));
+                    case Milk: {
+                        temp = new Milk(price, rs.getDouble("fattiness"), rs.getString("brand"));
+                    }
+                    break;
                 }
-                break;
+                result.put(id, temp);
             }
-            result.put(id, temp);
+            s.close();
+            rs.close();
+            connection.close();
+        } catch (SQLException e) {
+            return null;
+        } catch (IOException e) {
+            return null;
         }
-        s.close();
-        rs.close();
-        connection.close();
         return result;
     }
 
-    public static void save(String connectionPropsFilePath, Collection<String> transactions) throws
-            IOException,
-            SQLException
+    public static boolean save(String connectionPropsFilePath, Collection<String> transactions)
     {
-        Connection connection = getConnection(connectionPropsFilePath);
-        Statement s = connection.createStatement();
-        for (String query : transactions) {
-            s.execute(query);
+        try {
+            Connection connection = getConnection(connectionPropsFilePath);
+            Statement s = connection.createStatement();
+            for (String query : transactions) {
+                s.execute(query);
+            }
+            s.close();
+            connection.close();
+        } catch (SQLException e) {
+            return false;
+        } catch (IOException e) {
+            return false;
         }
-        s.close();
-        connection.close();
+        return true;
     }
 }

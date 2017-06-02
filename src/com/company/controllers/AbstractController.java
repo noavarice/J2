@@ -1,5 +1,6 @@
 package com.company.controllers;
 
+import com.company.loader.FileLoader;
 import com.company.models.*;
 
 import java.io.IOException;
@@ -155,4 +156,9 @@ public abstract class AbstractController {
 
 
     public abstract boolean save();
+
+    public boolean saveToFile(String filePath)
+    {
+        return FileLoader.save(filePath, productMap);
+    }
 }
