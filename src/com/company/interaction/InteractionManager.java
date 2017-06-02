@@ -74,7 +74,7 @@ public class InteractionManager {
             put(">", (product, maxPrice) -> product.getPrice() > maxPrice);
             put("<=", (product, maxPrice) -> product.getPrice() <= maxPrice);
             put(">=", (product, maxPrice) -> product.getPrice() >= maxPrice);
-            put("==", (product, maxPrice) -> product.getPrice() >= maxPrice);
+            put("=", (product, maxPrice) -> product.getPrice() == maxPrice);
         }
     };
 
