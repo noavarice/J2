@@ -16,6 +16,9 @@ public class DatabaseController extends AbstractController {
     {
         super(filePath);
         productMap = DatabaseLoader.load(filePath);
+        if (productMap == null) {
+            throw new SQLException();
+        }
         List<Integer> keys = Collections.list(productMap.keys());
         maxId = keys.isEmpty() ? 0 : Collections.max(keys);
         transactions = new LinkedList<>();

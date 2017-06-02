@@ -31,6 +31,7 @@ enum CommandType {
 enum CommandResult {
     SUCCEEDED,
     FAILED,
+    LOADING_FAILED,
     SAVING_FAILED,
     CONTROLLER_IS_NOT_CHOSEN,
     FINISHED,
@@ -131,22 +132,30 @@ public class InteractionManager {
             case LOAD: {
                 String type = matcher.group(2);
                 if (type.equals("db")) {
-                    DatabaseController temp = new DatabaseController("/home/alexrazinkov/Projects/Java/conn");
-                    if (controller == null || !controller.getClass().isAssignableFrom(temp.getClass())) {
-                        controller = temp;
+                    try {
+                        DatabaseController temp = new DatabaseController("/home/alexrazinkov/Projects/Java/conn");
+                        if (controller == null || !controller.getClass().isAssignableFrom(temp.getClass())) {
+                            controller = temp;
+                        }
+                    } catch (SQLException e) {
+                        return CommandResult.LOADING_FAILED;
+                    } catch (IOException e) {
+                        return CommandResult.LOADING_FAILED;
                     }
                 } else {
                     String filePath = matcher.group(3);
                     Path path = Paths.get(filePath);
-                    if (Files.exists(path) && !Files.isDirectory(path)) {
+                    try {
                         FileController temp = new FileController(filePath.toString());
                         if (controller == null || !controller.getClass().isAssignableFrom(temp.getClass())) {
                             controller = temp;
                         }
+                    } catch (IOException e) {
+                        return CommandResult.LOADING_FAILED;
                     }
                 }
+                return CommandResult.SUCCEEDED;
             }
-            break;
 
             case INSERT: {
                 if (controller == null) {
@@ -280,8 +289,13 @@ public class InteractionManager {
                 }
                 break;
 
+                case LOADING_FAILED: {
+                    System.out.println("Loading from database or file has failed");
+                }
+                break;
+
                 case SAVING_FAILED: {
-                    System.out.println("Saving to database or to file is failed");
+                    System.out.println("Saving to database or to file has failed");
                 }
                 break;
 
