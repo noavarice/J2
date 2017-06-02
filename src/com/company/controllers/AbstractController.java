@@ -75,13 +75,20 @@ public abstract class AbstractController {
         }
     };
 
-    protected void updateProduct(int id, Properties props)
+    protected boolean updateProduct(int id, Properties props)
     {
-        Product updatingProduct = productMap.get(new Integer(id));
+        Integer integerId = new Integer(id);
+        Product updatingProduct = productMap.get(integerId).getCopy();
         for (String key : props.stringPropertyNames()) {
             BiConsumer<Product, String> updater = propertyToUpdater.get(key);
-            updater.accept(updatingProduct, props.getProperty(key));
+            try {
+                updater.accept(updatingProduct, props.getProperty(key));
+            } catch (ClassCastException e) {
+                return false;
+            }
         }
+        productMap.put(integerId, updatingProduct);
+        return true;
     }
 
     protected static Product getProductFromProperties(Properties props) {

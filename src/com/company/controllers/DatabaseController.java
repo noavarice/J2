@@ -71,14 +71,16 @@ public class DatabaseController extends AbstractController {
             if (!temp.containsAll(keys)) {
                 continue;
             }
-            updateProduct(id, props);
-            String query = "UPDATE products SET ";
-            for (String propName : props.stringPropertyNames()) {
-                query += propName + " = " + props.getProperty(propName);
+            boolean result = updateProduct(id, props);
+            if (result) {
+                String query = "UPDATE products SET ";
+                for (String propName : props.stringPropertyNames()) {
+                    query += propName + " = " + props.getProperty(propName);
+                }
+                query += " WHERE id = " + String.valueOf(id);
+                transactions.add(query);
             }
-            query += " WHERE id = " + String.valueOf(id);
-            transactions.add(query);
-            return true;
+            return result;
         }
         return false;
     }
