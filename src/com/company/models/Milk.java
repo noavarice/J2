@@ -49,4 +49,10 @@ public class Milk extends Product {
                 .append(brand);
         return b.toString();
     }
+
+    @Override
+    public Product getCopy()
+    {
+        return new Milk(price, fattiness, brand);
+    }
 }

@@ -29,4 +29,10 @@ public class Meat extends Product {
         b.append("Meat, price: ").append(price).append(", meat type: ").append(meatType);
         return b.toString();
     }
+
+    @Override
+    public Product getCopy()
+    {
+        return new Meat(price, meatType);
+    }
 }

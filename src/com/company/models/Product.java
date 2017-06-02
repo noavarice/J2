@@ -26,4 +26,6 @@ public abstract class Product implements Serializable {
     }
 
     public abstract String toString();
+
+    public abstract Product getCopy();
 }

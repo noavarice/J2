@@ -29,4 +29,10 @@ public class Bread extends Product {
         b.append("Bread, price: ").append(price).append(", flour type: ").append(flourType);
         return b.toString();
     }
+
+    @Override
+    public Product getCopy()
+    {
+        return new Bread(price, flourType);
+    }
 }
