@@ -73,12 +73,13 @@ public class DatabaseController extends AbstractController {
             }
             boolean result = updateProduct(id, props);
             if (result) {
-                String query = "UPDATE products SET ";
+                StringBuilder query = new StringBuilder("UPDATE products SET ");
                 for (String propName : props.stringPropertyNames()) {
-                    query += propName + " = " + props.getProperty(propName);
+                    query.append(propName).append("=").append(props.getProperty(propName)).append(",");
                 }
-                query += " WHERE id = " + String.valueOf(id);
-                transactions.add(query);
+                query.deleteCharAt(query.length() - 1);
+                query.append(" WHERE id = ").append(String.valueOf(id));
+                transactions.add(query.toString());
             }
             return result;
         }
